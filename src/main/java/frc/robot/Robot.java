@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.funnel.Funnel;
@@ -72,6 +74,7 @@ public class Robot {
 		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
 		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
 		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
+		new TalonSRX(11).setNeutralMode(NeutralMode.Brake);
 
 		this.superstructure = new Superstructure(this);
 

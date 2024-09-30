@@ -126,7 +126,7 @@ public class Superstructure {
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
-				).withTimeout(0.475)//.until(this::isObjectInFunnel)
+				).withTimeout(0.53)//.until(this::isObjectInFunnel)
 			),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.IDLE),

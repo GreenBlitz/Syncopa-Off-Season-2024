@@ -20,7 +20,6 @@ import frc.utils.utilcommands.InitExecuteCommand;
 
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SwerveCommandsBuilder {
@@ -91,13 +90,8 @@ public class SwerveCommandsBuilder {
 	}
 
 	public Command pointWheelsInCircle() {
-		return new FunctionalCommand(
-			() -> {},
-			swerve.getModules()::pointWheelsInCircle,
-			interrupted -> {},
-			() -> false,
-			swerve
-		).withName("Point wheels in circle");
+		return new FunctionalCommand(() -> {}, swerve.getModules()::pointWheelsInCircle, interrupted -> {}, () -> false, swerve)
+			.withName("Point wheels in circle");
 	}
 
 	public Command pointWheels(Rotation2d wheelsAngle, boolean optimize) {
@@ -158,10 +152,7 @@ public class SwerveCommandsBuilder {
 
 	public Command driveToPose(Supplier<Pose2d> currentPose, Supplier<Pose2d> targetPose) {
 		return new DeferredCommand(
-			() -> new SequentialCommandGroup(
-				pathToPose(currentPose.get(), targetPose.get()),
-				pidToPose(currentPose, targetPose.get())
-			),
+			() -> new SequentialCommandGroup(pathToPose(currentPose.get(), targetPose.get()), pidToPose(currentPose, targetPose.get())),
 			Set.of(swerve)
 		).withName("Drive to pose");
 	}

@@ -47,11 +47,7 @@ public class SwerveStateHelper {
 			return swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NONE));
 		}
 		Pose2d closestClimb = Field.getClosetClimb(robotPoseSupplier.get().get());
-		return swerve.getCommandsBuilder().driveToPose(
-				() -> robotPoseSupplier.get().get(),
-				() -> closestClimb,
-				null //todo
-		);
+		return swerve.getCommandsBuilder().driveToPose(() -> robotPoseSupplier.get().get(), () -> closestClimb);
 	}
 
 	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {

@@ -88,17 +88,15 @@ public class SwerveCommandsBuilder {
 		).withName("Point wheels in X");
 	}
 
-	//@formatter:off
 	public Command pointWheelsInCircle() {
 		return new FunctionalCommand(
-				() -> {},
-				swerve.getModules()::pointWheelsInCircle,
-				interrupted -> {},
-				swerve.getModules()::isAtTargetAngles,
-				swerve
+			() -> {},
+			swerve.getModules()::pointWheelsInCircle,
+			interrupted -> {},
+			swerve.getModules()::isAtTargetAngles,
+			swerve
 		).withName("Point wheels in circle");
 	}
-	//@formatter:on
 
 	public Command pointWheels(Rotation2d wheelsAngle, boolean optimize) {
 		return new FunctionalCommand(

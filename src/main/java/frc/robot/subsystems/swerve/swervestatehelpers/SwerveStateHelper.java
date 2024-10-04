@@ -99,11 +99,11 @@ public class SwerveStateHelper {
 		}
 		Pose2d closestClimb = Field.getClosetClimb(optionalRobotPose.get());
 		chassisSpeeds = AimAssistMath.getObjectAssistedSpeeds(
-				chassisSpeeds,
-			 	new Pose2d(optionalRobotPose.get().getTranslation(), closestClimb.getRotation()),
-				closestClimb.getTranslation(),
-				swerveConstants,
-				state
+			chassisSpeeds,
+			new Pose2d(optionalRobotPose.get().getTranslation(), closestClimb.getRotation()),
+			closestClimb.getTranslation(),
+			swerveConstants,
+			state
 		);
 
 		Rotation2d robotHeading = optionalRobotPose.get().getRotation();

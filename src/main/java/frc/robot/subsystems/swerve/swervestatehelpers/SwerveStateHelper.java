@@ -56,7 +56,7 @@ public class SwerveStateHelper {
 			case SPEAKER -> handleSpeakerAssist(speeds, robotPoseSupplier.get());
 			case NOTE -> handleNoteAimAssist(speeds, robotPoseSupplier.get(), noteTranslationSupplier.get(), swerveState);
 			case AMP -> handleAmpAssist(speeds, robotPoseSupplier.get());
-			case CLIMB -> handleClimbAngleAimAssist(speeds, robotPoseSupplier.get());
+			case CLIMB -> handleClimbAngleAimAssist(speeds, robotPoseSupplier.get(), swerveState);
 		};
 	}
 
@@ -91,13 +91,21 @@ public class SwerveStateHelper {
 		);
 	}
 
-	private ChassisSpeeds handleClimbAngleAimAssist(ChassisSpeeds chassisSpeeds, Optional<Pose2d> optionalRobotPose) {
+	private ChassisSpeeds handleClimbAngleAimAssist(ChassisSpeeds chassisSpeeds, Optional<Pose2d> optionalRobotPose, SwerveState state) {
 		if (optionalRobotPose.isEmpty()) {
 			return chassisSpeeds;
 		}
+		Pose2d closestClimb = Field.getClosetClimb(optionalRobotPose.get());
+		chassisSpeeds = AimAssistMath.getObjectAssistedSpeeds(
+				chassisSpeeds,
+			 	new Pose2d(optionalRobotPose.get().getTranslation(), closestClimb.getRotation()),
+				closestClimb.getTranslation(),
+				swerveConstants,
+				state
+		);
+
 		Rotation2d robotHeading = optionalRobotPose.get().getRotation();
-		Rotation2d closestClimbAngle = Field.getClosetClimb(optionalRobotPose.get()).getRotation();
-		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, closestClimbAngle, swerveConstants);
+		return AimAssistMath.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, closestClimb.getRotation(), swerveConstants);
 	}
 
 

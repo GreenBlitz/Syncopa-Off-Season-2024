@@ -78,28 +78,34 @@ public class SwerveCommandsBuilder {
 	}
 	//@formatter:on
 
-
 	public Command pointWheelsInX() {
 		return new FunctionalCommand(
 			() -> {},
 			() -> swerve.getModules().pointWheelsInX(SwerveState.DEFAULT_DRIVE.getLoopMode().isClosedLoop),
 			interrupted -> {},
-			() -> false,
+			swerve.getModules()::isAtTargetStates,
 			swerve
 		).withName("Point wheels in X");
 	}
 
+	//@formatter:off
 	public Command pointWheelsInCircle() {
-		return new FunctionalCommand(() -> {}, swerve.getModules()::pointWheelsInCircle, interrupted -> {}, () -> false, swerve)
-			.withName("Point wheels in circle");
+		return new FunctionalCommand(
+				() -> {},
+				swerve.getModules()::pointWheelsInCircle,
+				interrupted -> {},
+				swerve.getModules()::isAtTargetAngles,
+				swerve
+		).withName("Point wheels in circle");
 	}
+	//@formatter:on
 
 	public Command pointWheels(Rotation2d wheelsAngle, boolean optimize) {
 		return new FunctionalCommand(
 			() -> {},
 			() -> swerve.getModules().pointWheels(wheelsAngle, optimize),
 			interrupted -> {},
-			() -> false,
+			swerve.getModules()::isAtTargetAngles,
 			swerve
 		).withName("Point wheels");
 	}
@@ -114,7 +120,7 @@ public class SwerveCommandsBuilder {
 			swerve::resetPIDControllers,
 			() -> swerve.turnToHeading(targetHeading, SwerveState.DEFAULT_DRIVE.withRotateAxis(rotateAxis)),
 			interrupted -> {},
-			() -> false,
+			() -> swerve.isAtHeading(targetHeading),
 			swerve
 		).withName("Rotate around " + rotateAxis.name() + " to " + targetHeading);
 	}

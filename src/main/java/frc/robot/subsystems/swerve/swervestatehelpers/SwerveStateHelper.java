@@ -37,24 +37,9 @@ public class SwerveStateHelper {
 		this.noteTranslationSupplier = noteTranslationSupplier;
 	}
 
-	public Command getAimAssistCommand(AimAssist aimAssist) {
-		return switch (aimAssist) {
-			case NONE, SPEAKER, NOTE, AMP -> swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(aimAssist));
-			case CLIMB -> new DeferredCommand(this::climbPoseAimAssist, Set.of(swerve));
-		};
-	}
-
-	private Command climbPoseAimAssist() {
-		if (robotPoseSupplier.get().isEmpty()) {
-			return swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NONE));
-		}
-		Pose2d closestClimb = Field.getClosetClimb(robotPoseSupplier.get().get());
-		return swerve.getCommandsBuilder().driveToPose(() -> robotPoseSupplier.get().get(), () -> closestClimb);
-	}
-
 	public ChassisSpeeds applyAimAssistOnChassisSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
 		return switch (swerveState.getAimAssist()) {
-			case NONE -> speeds;
+			case NONE, CLIMB_MOVE_TO_POSE -> speeds;
 			case SPEAKER -> handleSpeakerAssist(speeds, robotPoseSupplier.get());
 			case NOTE -> handleNoteAimAssist(speeds, robotPoseSupplier.get(), noteTranslationSupplier.get(), swerveState);
 			case AMP -> handleAmpAssist(speeds, robotPoseSupplier.get());

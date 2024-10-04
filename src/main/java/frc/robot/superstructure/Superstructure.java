@@ -20,6 +20,8 @@ import frc.robot.subsystems.swerve.SwerveState;
 import frc.robot.subsystems.swerve.swervestatehelpers.AimAssist;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Optional;
+
 public class Superstructure {
 
 	private final Robot robot;
@@ -131,7 +133,7 @@ public class Superstructure {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
-			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
+			swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.NOTE, Optional.empty())
 		);
 	}
 
@@ -143,7 +145,7 @@ public class Superstructure {
 			pivotStateHandler.setState(PivotState.PRE_SPEAKER),
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.IDLE),
-			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER))
+			swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.SPEAKER, Optional.empty())
 		);
 	}
 
@@ -156,7 +158,7 @@ public class Superstructure {
 		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)),
+						swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty()),
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
 				new ParallelCommandGroup(
@@ -178,7 +180,7 @@ public class Superstructure {
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					rollerStateHandler.setState(RollerState.STOP),
-					swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP))
+					swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty())
 				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),

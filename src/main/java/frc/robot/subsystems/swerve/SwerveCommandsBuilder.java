@@ -11,13 +11,16 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.constants.Field;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
+import frc.robot.subsystems.swerve.swervestatehelpers.AimAssist;
 import frc.robot.subsystems.swerve.swervestatehelpers.RotateAxis;
 import frc.utils.calibration.swervecalibration.WheelRadiusCharacterization;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import frc.utils.pathplannerutils.PathPlannerUtils;
 import frc.utils.utilcommands.InitExecuteCommand;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -182,6 +185,21 @@ public class SwerveCommandsBuilder {
 			() -> false,
 			swerve
 		).withName("PID to pose: " + targetPose);
+	}
+
+	public Command getAimAssistCommand(AimAssist aimAssist, Optional<Supplier<Pose2d>> currentPose) {
+		return switch (aimAssist) {
+			case NONE, SPEAKER, NOTE, AMP, CLIMB -> swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(aimAssist));
+			case CLIMB_MOVE_TO_POSE -> new DeferredCommand(() -> climbPoseAimAssist(currentPose), Set.of(swerve));
+		};
+	}
+
+	private Command climbPoseAimAssist(Optional<Supplier<Pose2d>> currentPose) {
+		if (currentPose.isEmpty()) {
+			return swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NONE));
+		}
+		Pose2d closestClimb = Field.getClosetClimb(currentPose.get().get());
+		return swerve.getCommandsBuilder().driveToPose(() -> currentPose.get().get(), () -> closestClimb);
 	}
 
 }

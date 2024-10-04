@@ -158,7 +158,7 @@ public class Superstructure {
 		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-						swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty()),
+					swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty()),
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
 				new ParallelCommandGroup(

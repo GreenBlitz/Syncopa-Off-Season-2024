@@ -91,6 +91,20 @@ public class Superstructure {
 		return isFlywheelReady && isPivotReady;
 	}
 
+	private boolean isReadyToPass() {
+		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
+
+		boolean isFlywheelReady = robot.getFlywheel()
+				.isAtVelocities(
+						FlywheelState.PASSING.getRightVelocity(),
+						FlywheelState.PASSING.getLeftVelocity(),
+						Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+				);
+
+
+		return isFlywheelReady && isPivotReady;
+	}
+
 
 	public Command setState(RobotState state) {
 		this.currentState = state;
@@ -106,6 +120,7 @@ public class Superstructure {
 			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter();
 			case INTAKE_OUTTAKE -> intakeOuttake();
 			case ARM_OUTTAKE -> armOuttake();
+			case PASSING -> passing();
 		};
 	}
 
@@ -355,5 +370,22 @@ public class Superstructure {
 		);
 	}
 	//@formatter:on
+
+	private Command passing() {
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToPass),
+				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel())
+				funnelStateHandler.setState(FunnelState.STOP)
+			),
+			rollerStateHandler.setState(RollerState.STOP),
+			intakeStateHandler.setState(IntakeState.STOP),
+			pivotStateHandler.setState(PivotState.PASSING),
+			flywheelStateHandler.setState(FlywheelState.PASSING),
+			elbowStateHandler.setState(ElbowState.IDLE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE)
+		);
+	}
 
 }

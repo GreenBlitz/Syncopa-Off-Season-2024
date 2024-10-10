@@ -95,8 +95,6 @@ public class Robot {
 		this.wrist = new Wrist(WristFactory.generateWristStuff(WristConstants.LOG_PATH));
 		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
 
-		this.superstructure = new Superstructure(this);
-
 		this.multiLimelights = new MultiLimelights(LimeLightConstants.LIMELIGHT_NAMES, "limelightsHardware");
 		this.limelightFilterer = new LimelightFilterer(
 			new LimelightFiltererConfig("limelightfilterer/", Field.APRIL_TAGS_AVERAGE_HEIGHT_METERS),
@@ -116,6 +114,8 @@ public class Robot {
 		swerve.configPathPlanner(poseEstimator::getEstimatedPose, pose2d -> {});
 		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.setStateHelper(new SwerveStateHelper(() -> Optional.of(poseEstimator.getEstimatedPose()), Optional::empty, swerve));
+
+		this.superstructure = new Superstructure(this);
 
 		configPathPlanner();
 		configureBindings();

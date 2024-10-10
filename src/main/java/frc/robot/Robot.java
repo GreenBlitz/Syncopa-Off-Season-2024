@@ -112,8 +112,8 @@ public class Robot {
 		);
 
 		swerve.configPathPlanner(poseEstimator::getEstimatedPose, pose2d -> {});
-		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-		swerve.setStateHelper(new SwerveStateHelper(() -> Optional.of(poseEstimator.getEstimatedPose()), Optional::empty, swerve));
+//		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
+//		swerve.setStateHelper(new SwerveStateHelper(() -> Optional.of(poseEstimator.getEstimatedPose()), Optional::empty, swerve));
 
 		this.superstructure = new Superstructure(this);
 

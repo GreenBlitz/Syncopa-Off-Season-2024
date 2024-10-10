@@ -87,12 +87,8 @@ public class Superstructure {
 				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
 			);
 
-		boolean isSwerveReady = swerve.isAtHeading(
-			SwerveMath.getRelativeTranslation(robot.getPoseEstimator().getEstimatedPose().getTranslation(), Field.getSpeaker().toTranslation2d())
-				.getAngle()
-		);
 
-		return isFlywheelReady && isPivotReady && isSwerveReady;
+		return isFlywheelReady && isPivotReady;
 	}
 
 

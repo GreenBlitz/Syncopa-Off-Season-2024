@@ -31,7 +31,6 @@ public class JoysticksBindings {
 		// bindings...
 
 		Pose2d old = robot.getPoseEstimator().getEstimatedPose();
-		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPoseByLimelight()));
 		usedJoystick.Y
 			.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(old.getX(), old.getY(), Rotation2d.fromDegrees(0)))));
 
@@ -58,6 +57,8 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = SECOND_JOYSTICK;
 		// bindings...
 
+		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPoseByLimelight()));
+
 		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM));
 		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER));
 
@@ -71,6 +72,7 @@ public class JoysticksBindings {
 				.whileTrue(robot.getFunnel().getCommandsBuilder().setPower(() -> -usedJoystick.getAxisValue(Axis.LEFT_TRIGGER)));
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER, 0.1)
 				.whileTrue(robot.getFunnel().getCommandsBuilder().setPower(() -> usedJoystick.getAxisValue(Axis.RIGHT_TRIGGER)));
+
 
 	}
 

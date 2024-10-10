@@ -30,13 +30,18 @@ public class JoysticksBindings {
 		// bindings...
 
 		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getSwerve().setHeading(new Rotation2d())));
-		robot.getSwerve().setDefaultCommand(robot.getSwerve().getCommandsBuilder().driveBySavedState(
-				() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-				() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-				() -> usedJoystick.getAxisValue(Axis.RIGHT_X)
-		));
+		robot.getSwerve()
+			.setDefaultCommand(
+				robot.getSwerve()
+					.getCommandsBuilder()
+					.driveBySavedState(
+						() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
+						() -> usedJoystick.getAxisValue(Axis.LEFT_X),
+						() -> usedJoystick.getAxisValue(Axis.RIGHT_X)
+					)
+			);
 
-		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.SHOOTER_INTAKE));
+		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE));
 		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE_OUTTAKE));
 	}
 

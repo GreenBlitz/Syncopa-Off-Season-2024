@@ -373,11 +373,11 @@ public class Superstructure {
 
 	private Command passing() {
 		return new ParallelCommandGroup(
-			new SequentialCommandGroup(
-				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToPass),
-				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel())
-				funnelStateHandler.setState(FunnelState.STOP)
-			),
+//			new SequentialCommandGroup(
+//				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToPass),
+//				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel())
+//				funnelStateHandler.setState(FunnelState.STOP)
+//			),
 			rollerStateHandler.setState(RollerState.STOP),
 			intakeStateHandler.setState(IntakeState.STOP),
 			pivotStateHandler.setState(PivotState.PASSING),

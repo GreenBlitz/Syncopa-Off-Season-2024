@@ -49,6 +49,8 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.SHOOTER_INTAKE));
 		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE_OUTTAKE));
 
+		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.PASSING));
+
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.AMP));
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.SPEAKER));
 	}

@@ -61,9 +61,9 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM));
 		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER));
 
-		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
+		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
 		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.ARM_OUTTAKE));
-		usedJoystick.POV_UP.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP));
+		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP));
 
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER, 0.1)
 					.whileTrue(robot.getFunnel().getCommandsBuilder().setPower(() -> -usedJoystick.getAxisValue(Axis.LEFT_TRIGGER) * 0.7));

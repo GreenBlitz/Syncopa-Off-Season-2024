@@ -66,7 +66,8 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP));
 
 		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER, 0.1)
-					.whileTrue(robot.getFunnel().getCommandsBuilder().setPower(() -> -usedJoystick.getAxisValue(Axis.LEFT_TRIGGER) * 0.7));
+					.whileTrue(robot.getFunnel().getCommandsBuilder().setPower(() ->
+							-usedJoystick.getAxisValue(Axis.LEFT_TRIGGER) * 0.5));
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER, 0.1)
 					.whileTrue(
 							robot.getFunnel().getCommandsBuilder().setPower(

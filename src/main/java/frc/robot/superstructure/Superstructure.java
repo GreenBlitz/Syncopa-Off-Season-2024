@@ -1,6 +1,8 @@
 package frc.robot.superstructure;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.robot.JoysticksBindings;
 import frc.robot.Robot;
 import frc.robot.constants.Field;
 import frc.robot.subsystems.elbow.ElbowState;
@@ -57,6 +59,7 @@ public class Superstructure {
 		Logger.recordOutput("CurrentState", currentState);
 	}
 
+
 	private boolean isObjectInRoller() {
 		return robot.getRoller().isObjectIn();
 	}
@@ -89,6 +92,9 @@ public class Superstructure {
 		return isFlywheelReady && isPivotReady;
 	}
 
+	public static Command notifiedNoteIn() {
+		return new RunCommand(() -> JoysticksBindings.getMainJoystick().setRumble(GenericHID.RumbleType.kBothRumble, 0.5)).withTimeout(0.5);
+	}
 
 	public Command setState(RobotState state) {
 		this.currentState = state;
@@ -130,6 +136,7 @@ public class Superstructure {
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(this::isObjectInIntake),
 				new ParallelCommandGroup(
+					notifiedNoteIn(),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
@@ -157,6 +164,7 @@ public class Superstructure {
 					wristStateHandler.setState(WristState.ARM_INTAKE)
 				).until(this::isObjectInIntake),
 				new ParallelCommandGroup(
+					notifiedNoteIn(),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_ARM),
 					rollerStateHandler.setState(RollerState.ROLL_IN),
 					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),

@@ -89,11 +89,18 @@ public class Superstructure {
 				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
 			);
 
+		Logger.recordOutput("tst/isFlywhhelReady", isFlywheelReady);
+		Logger.recordOutput("tst/isPivotReadt", isPivotReady);
 		return isFlywheelReady && isPivotReady;
 	}
 
 	public static Command notifiedNoteIn() {
-		return new RunCommand(() -> JoysticksBindings.getMainJoystick().setRumble(GenericHID.RumbleType.kBothRumble, 0.5)).withTimeout(0.5);
+		return new FunctionalCommand(
+				() -> {},
+				() -> JoysticksBindings.getMainJoystick().setRumble(GenericHID.RumbleType.kBothRumble, 0.5),
+				inter -> JoysticksBindings.getMainJoystick().stopRumble(GenericHID.RumbleType.kBothRumble),
+				() -> false
+		).withTimeout(Timeouts.INTAKE_FUNNEL_SECONDS - 0.2);
 	}
 
 	public Command setState(RobotState state) {

@@ -95,6 +95,19 @@ public class Superstructure {
 		return isFlywheelReady && isPivotReady;
 	}
 
+	private boolean isReadyToShooterOuttake() {
+		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.IDLE.getTargetPosition(), Tolerances.PIVOT_POSITION);
+
+		boolean isFlywheelReady = robot.getFlywheel()
+		   .isAtVelocities(
+			   FlywheelState.OUTTAKE.getRightVelocity(),
+			   FlywheelState.OUTTAKE.getLeftVelocity(),
+			   Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+		   );
+
+		return isFlywheelReady && isPivotReady;
+	}
+
 
 	private Command noteInRumble() {
 		SmartJoystick mainJoystick = JoysticksBindings.getMainJoystick();
@@ -361,6 +374,11 @@ public class Superstructure {
 
 	private Command shooterOuttake() {
 		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToShooterOuttake),
+				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel())
+				funnelStateHandler.setState(FunnelState.STOP)
+			),
 			flywheelStateHandler.setState(FlywheelState.OUTTAKE),
 			rollerStateHandler.setState(RollerState.ROLL_OUT),
 			intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),

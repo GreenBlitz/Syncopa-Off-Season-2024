@@ -124,6 +124,7 @@ public class Superstructure {
 		return switch (state) {
 			case IDLE -> idle();
 			case INTAKE -> intake();
+			case FEEDER_INTAKE -> feederIntake();
 			case ARM_INTAKE -> armIntake();
 			case PRE_SPEAKER -> preSpeaker();
 			case SPEAKER -> speaker();
@@ -173,6 +174,41 @@ public class Superstructure {
 			),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.IDLE),
+			elbowStateHandler.setState(ElbowState.INTAKE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
+		);
+	}
+
+	private Command feederIntake() {
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					rollerStateHandler.setState(RollerState.ROLL_OUT),
+					funnelStateHandler.setState(FunnelState.FEEDER_INTAKE),
+					flywheelStateHandler.setState(FlywheelState.FEEDER_INTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE)
+				).withTimeout(Timeouts.FEEDER_INTAKE_TO_FUNNEL_BB),//until(this::isObjectInFunnel),
+				new ParallelCommandGroup(
+					noteInRumble(),
+					funnelStateHandler.setState(FunnelState.FEEDER_INTAKE),
+					rollerStateHandler.setState(RollerState.ROLL_OUT),
+					flywheelStateHandler.setState(FlywheelState.FEEDER_INTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE)
+				).withTimeout(Timeouts.FEEDER_INTAKE_AFTER_FUNNEL_BB),//.until(() -> !isObjectInFunnel())),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.INTAKE),
+					rollerStateHandler.setState(RollerState.ROLL_IN),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
+				).withTimeout(Timeouts.FEEDER_INTAKE_INTO_FUNNEL),//until(this::isObjectInFunnel),
+				new ParallelCommandGroup(
+					rollerStateHandler.setState(RollerState.STOP),
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				)
+			),
+			pivotStateHandler.setState(PivotState.FEEDER_INTAKE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))

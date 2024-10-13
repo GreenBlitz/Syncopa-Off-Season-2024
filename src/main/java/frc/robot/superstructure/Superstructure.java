@@ -124,7 +124,7 @@ public class Superstructure {
 		return switch (state) {
 			case IDLE -> idle();
 			case INTAKE -> intake();
-			case FEEDER_INTAKE -> feederIntake();
+			case SOURCE_INTAKE -> sourceIntake();
 			case ARM_INTAKE -> armIntake();
 			case PRE_SPEAKER -> preSpeaker();
 			case SPEAKER -> speaker();
@@ -180,35 +180,35 @@ public class Superstructure {
 		);
 	}
 
-	private Command feederIntake() {
+	private Command sourceIntake() {
 		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					rollerStateHandler.setState(RollerState.ROLL_OUT),
-					funnelStateHandler.setState(FunnelState.FEEDER_INTAKE),
-					flywheelStateHandler.setState(FlywheelState.FEEDER_INTAKE),
+					funnelStateHandler.setState(FunnelState.SOURCE_INTAKE),
+					flywheelStateHandler.setState(FlywheelState.SOURCE_INTAKE),
 					intakeStateHandler.setState(IntakeState.OUTTAKE)
-				).withTimeout(Timeouts.FEEDER_INTAKE_TO_FUNNEL_BB),//until(this::isObjectInFunnel),
+				).withTimeout(Timeouts.SOURCE_INTAKE_TO_FUNNEL_BB),//until(this::isObjectInFunnel),
 				new ParallelCommandGroup(
 					noteInRumble(),
-					funnelStateHandler.setState(FunnelState.FEEDER_INTAKE),
+					funnelStateHandler.setState(FunnelState.SOURCE_INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_OUT),
-					flywheelStateHandler.setState(FlywheelState.FEEDER_INTAKE),
+					flywheelStateHandler.setState(FlywheelState.SOURCE_INTAKE),
 					intakeStateHandler.setState(IntakeState.OUTTAKE)
-				).withTimeout(Timeouts.FEEDER_INTAKE_AFTER_FUNNEL_BB),//.until(() -> !isObjectInFunnel())),
+				).withTimeout(Timeouts.SOURCE_INTAKE_AFTER_FUNNEL_BB),//.until(() -> !isObjectInFunnel())),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					flywheelStateHandler.setState(FlywheelState.DEFAULT)
-				).withTimeout(Timeouts.FEEDER_INTAKE_INTO_FUNNEL),//until(this::isObjectInFunnel),
+				).withTimeout(Timeouts.SOURCE_INTAKE_INTO_FUNNEL),//until(this::isObjectInFunnel),
 				new ParallelCommandGroup(
 					rollerStateHandler.setState(RollerState.STOP),
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP)
 				)
 			),
-			pivotStateHandler.setState(PivotState.FEEDER_INTAKE),
+			pivotStateHandler.setState(PivotState.SOURCE_INTAKE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))

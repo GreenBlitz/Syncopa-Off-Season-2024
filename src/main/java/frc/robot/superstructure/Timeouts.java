@@ -11,8 +11,8 @@ public class Timeouts {
 	public static final double TRANSFER_ARM_SHOOTER_SECONDS = 0.5;
 	public static final double INTAKE_ARM_1_ROTATION_SECONDS = 0.15;
 	public static final double NOTE_IN_RUMBLE = 0.2;
-	public static final double FEEDER_INTAKE_TO_FUNNEL_BB = 0.7;
-	public static final double FEEDER_INTAKE_AFTER_FUNNEL_BB = 0.4;
-	public static final double FEEDER_INTAKE_INTO_FUNNEL = 0.4;
+	public static final double SOURCE_INTAKE_TO_FUNNEL_BB = 0.7;
+	public static final double SOURCE_INTAKE_AFTER_FUNNEL_BB = 0.4;
+	public static final double SOURCE_INTAKE_INTO_FUNNEL = 0.4;
 
 }

@@ -5,7 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 public enum FlywheelState {
 
 	DEFAULT(Rotation2d.fromRotations(0), 0.7),
-	FEEDER_INTAKE(Rotation2d.fromRotations(-15), 1),
+	SOURCE_INTAKE(Rotation2d.fromRotations(-15), 1),
 	OUTTAKE(Rotation2d.fromRotations(20), 0.7),
 	PRE_SPEAKER(Rotation2d.fromRotations(50), 0.7);
 

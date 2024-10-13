@@ -4,7 +4,7 @@ public enum RobotState {
 
 	IDLE,
 	INTAKE,
-    SOURCE_INTAKE,
+	SOURCE_INTAKE,
 	ARM_INTAKE,
 	PRE_SPEAKER,
 	SPEAKER,

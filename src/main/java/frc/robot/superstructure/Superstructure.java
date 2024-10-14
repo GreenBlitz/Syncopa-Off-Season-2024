@@ -205,6 +205,7 @@ public class Superstructure {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.SOURCE_INTAKE),
 			new SequentialCommandGroup(
+				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					rollerStateHandler.setState(RollerState.ROLL_OUT),
 					funnelStateHandler.setState(FunnelState.SOURCE_INTAKE),
@@ -224,6 +225,7 @@ public class Superstructure {
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					flywheelStateHandler.setState(FlywheelState.DEFAULT)
 				).withTimeout(Timeouts.SOURCE_INTAKE_INTO_FUNNEL),//.until(this::isObjectInFunnel),
+				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					rollerStateHandler.setState(RollerState.STOP),
 					funnelStateHandler.setState(FunnelState.STOP),
@@ -454,8 +456,10 @@ public class Superstructure {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.SHOOTER_OUTTAKE),
 			new SequentialCommandGroup(
+				enableChangeStateAutomatically(false),
 				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToShooterOuttake),
 				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),//.until(() -> !isObjectInFunnel()),
+				enableChangeStateAutomatically(true),
 				funnelStateHandler.setState(FunnelState.STOP)
 			),
 			flywheelStateHandler.setState(FlywheelState.OUTTAKE),

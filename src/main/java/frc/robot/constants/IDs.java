@@ -20,6 +20,8 @@ public class IDs {
 
 		public static final int SOLENOID = 55;
 
+		public static final int WRIST = 11;
+
 	}
 
 	public static class CANSparkMAXs {
@@ -57,6 +59,8 @@ public class IDs {
 		public static final Phoenix6DeviceID LEFT_FLYWHEEL = new Phoenix6DeviceID(22, BusChain.ROBORIO);
 
 		public static final Phoenix6DeviceID PIVOT = new Phoenix6DeviceID(11, BusChain.CANIVORE);
+
+		public static final Phoenix6DeviceID LIFTER = new Phoenix6DeviceID(12, BusChain.CANIVORE);
 
 	}
 

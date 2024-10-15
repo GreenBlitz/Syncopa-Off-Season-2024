@@ -98,7 +98,7 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.PRE_SPEAKER));
 		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP));
 		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
-		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARMt ));
+		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM));
 		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER));
 	}
 

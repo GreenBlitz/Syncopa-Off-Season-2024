@@ -58,7 +58,6 @@ public class JoysticksBindings {
 		Pose2d old = robot.getPoseEstimator().getEstimatedPose();
 		usedJoystick.Y
 			.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(old.getX(), old.getY(), Rotation2d.fromDegrees(0)))));
-		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPoseByLimelight()));
 
 		robot.getSwerve()
 			.setDefaultCommand(
@@ -70,14 +69,15 @@ public class JoysticksBindings {
 						() -> usedJoystick.getAxisValue(Axis.RIGHT_X)
 					)
 			);
-		// for aim assist test
-		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().setState(RobotState.ARM_INTAKE));
-		usedJoystick.POV_DOWN.onTrue(robot.getStatesMotionPlanner().setState(RobotState.PASSING));
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getStatesMotionPlanner().setState(RobotState.SPEAKER));
-		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().setState(RobotState.PRE_SPEAKER));
-		usedJoystick.L1.onTrue(robot.getStatesMotionPlanner().setState(RobotState.INTAKE));
-		usedJoystick.A.onTrue(robot.getStatesMotionPlanner().setState(RobotState.IDLE));
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getStatesMotionPlanner().setState(RobotState.INTAKE_OUTTAKE));
+
+		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().setState(RobotState.PASSING));
+		usedJoystick.POV_DOWN.onTrue(robot.getStatesMotionPlanner().setState(RobotState.INTAKE_OUTTAKE));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(
+				robot.getStatesMotionPlanner().setState(RobotState.SPEAKER));
+		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().setState(RobotState.INTAKE));
+		usedJoystick.L1.onTrue(robot.getStatesMotionPlanner().setState(RobotState.ARM_INTAKE));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(
+				robot.getStatesMotionPlanner().setState(RobotState.AMP));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {
@@ -95,16 +95,11 @@ public class JoysticksBindings {
 					.alongWith(robot.getIntake().getCommandsBuilder().setPower(() -> usedJoystick.getAxisValue(Axis.RIGHT_TRIGGER) * 0.4))
 			);
 
-		usedJoystick.R1.onTrue(
-			robot.getFlywheel()
-				.getCommandsBuilder()
-				.setVelocities(FlywheelState.PRE_SPEAKER.getRightVelocity(), FlywheelState.PRE_SPEAKER.getLeftVelocity())
-		);
-		usedJoystick.L1.onTrue(
-			robot.getFlywheel()
-				.getCommandsBuilder()
-				.setVelocities(FlywheelState.DEFAULT.getRightVelocity(), FlywheelState.DEFAULT.getLeftVelocity())
-		);
+		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.PRE_SPEAKER));
+		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP));
+		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
+		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARMt ));
+		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER));
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {

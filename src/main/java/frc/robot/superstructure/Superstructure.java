@@ -1,6 +1,7 @@
 package frc.robot.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.JoysticksBindings;
@@ -14,12 +15,13 @@ import frc.robot.subsystems.funnel.FunnelState;
 import frc.robot.subsystems.funnel.FunnelStateHandler;
 import frc.robot.subsystems.intake.IntakeState;
 import frc.robot.subsystems.intake.IntakeStateHandler;
-import frc.robot.subsystems.pivot.PivotSpeakerInterpolationMap;
+import frc.robot.subsystems.pivot.PivotInterpolationMap;
 import frc.robot.subsystems.pivot.PivotState;
 import frc.robot.subsystems.pivot.PivotStateHandler;
 import frc.robot.subsystems.roller.RollerState;
 import frc.robot.subsystems.roller.RollerStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.SwerveState;
 import frc.robot.subsystems.swerve.swervestatehelpers.AimAssist;
 import frc.robot.subsystems.wrist.WristState;
@@ -55,8 +57,7 @@ public class Superstructure {
 		this.flywheelStateHandler = new FlywheelStateHandler(robot.getFlywheel());
 		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
 		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
-		this.pivotStateHandler = new PivotStateHandler(
-				robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getEstimatedPose()));
+		this.pivotStateHandler = new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getEstimatedPose()));
 		this.rollerStateHandler = new RollerStateHandler(robot.getRoller());
 		this.wristStateHandler = new WristStateHandler(robot.getWrist());
 
@@ -97,7 +98,7 @@ public class Superstructure {
 		return isElbowReady && isPivotReady;
 	}
 
-	private boolean isReadyToShoot() {
+	private boolean isReadyToShootClose() {
 		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PRE_SPEAKER.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
 		boolean isFlywheelReady = robot.getFlywheel()
@@ -111,14 +112,11 @@ public class Superstructure {
 	}
 
 	private boolean isReadyToShootInterpolation() {
-		double metersFromSpeaker = Field.getSpeaker()
-			.toTranslation2d()
-			.getDistance(robot.getPoseEstimator().getEstimatedPose().getTranslation());
+		Translation2d robotTranslation2d = robot.getPoseEstimator().getEstimatedPose().getTranslation();
+
+		double metersFromSpeaker = Field.getSpeaker().toTranslation2d().getDistance(robotTranslation2d);
 		boolean isPivotReady = robot.getPivot()
-			.isAtPosition(
-				Rotation2d.fromRadians(PivotSpeakerInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)),
-				Tolerances.PIVOT_POSITION
-			);
+			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
 
 		boolean isFlywheelReady = robot.getFlywheel()
 			.isAtVelocities(
@@ -127,7 +125,10 @@ public class Superstructure {
 				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
 			);
 
-		return isFlywheelReady && isPivotReady;
+		Rotation2d angleToSpeaker = SwerveMath.getRelativeTranslation(robotTranslation2d, Field.getSpeaker().toTranslation2d()).getAngle();
+		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker);
+
+		return isFlywheelReady && isPivotReady && isSwerveReady;
 	}
 
 	private Command setCurrentStateName(RobotState state) {

@@ -149,8 +149,8 @@ public class Robot {
 	private void configPathPlanner() {
 		// Register commands...
 		PathPlannerUtils.registerCommand("Shoot", new InstantCommand());
-		PathPlannerUtils.registerCommand(RobotState.INTAKE.name(), superstructure.setState(RobotState.INTAKE));
-		PathPlannerUtils.registerCommand(RobotState.INTAKE_WITH_FLYWHEEL.name(), superstructure.setState(RobotState.INTAKE_WITH_FLYWHEEL));
+		PathPlannerUtils.registerCommand(RobotState.INTAKE.name(), superstructure.setState(RobotState.INTAKE).until(superstructure :: isEnableChangeStateAutomatically));
+		PathPlannerUtils.registerCommand(RobotState.INTAKE_WITH_FLYWHEEL.name(), superstructure.setState(RobotState.INTAKE_WITH_FLYWHEEL).until(superstructure :: isEnableChangeStateAutomatically));
 		PathPlannerUtils.registerCommand(RobotState.PRE_SPEAKER.name(), superstructure.setState(RobotState.PRE_SPEAKER));
 		PathPlannerUtils.registerCommand(
 			RobotState.SPEAKER.name(),

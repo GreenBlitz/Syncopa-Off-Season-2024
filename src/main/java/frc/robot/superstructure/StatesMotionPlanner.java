@@ -13,7 +13,7 @@ public class StatesMotionPlanner {
 
 	public Command setState(RobotState state) {
 		return switch (state) {
-			case INTAKE, ARM_INTAKE, SPEAKER, TRANSFER_SHOOTER_TO_ARM, TRANSFER_ARM_TO_SHOOTER ->
+			case INTAKE, ARM_INTAKE, SPEAKER, TRANSFER_SHOOTER_TO_ARM, TRANSFER_ARM_TO_SHOOTER, INTAKE_WITH_FLYWHEEL ->
 				new SequentialCommandGroup(
 					superstructure.enableChangeStateAutomatically(false),
 					superstructure.setState(state).until(superstructure::isEnableChangeStateAutomatically),

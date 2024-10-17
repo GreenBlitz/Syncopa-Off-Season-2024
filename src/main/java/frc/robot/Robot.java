@@ -4,20 +4,25 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import frc.robot.subsystems.elbow.Elbow;
-import frc.robot.subsystems.elbow.ElbowConstants;
-import frc.robot.subsystems.elbow.factory.ElbowFactory;
-import frc.robot.subsystems.flywheel.FlyWheelConstants;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.factory.FlywheelFactory;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.constants.Field;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
 import frc.robot.subsystems.funnel.factory.FunnelFactory;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.factory.IntakeFactory;
+import frc.robot.subsystems.elbow.Elbow;
+import frc.robot.subsystems.elbow.ElbowConstants;
+import frc.robot.subsystems.elbow.factory.ElbowFactory;
+import frc.robot.subsystems.flywheel.FlyWheelConstants;
+import frc.robot.subsystems.flywheel.Flywheel;
+import frc.robot.subsystems.flywheel.factory.FlywheelFactory;
 import frc.robot.subsystems.lifter.Lifter;
 import frc.robot.subsystems.lifter.LifterConstants;
 import frc.robot.subsystems.lifter.factory.LifterFactory;
@@ -33,6 +38,7 @@ import frc.robot.subsystems.solenoid.factory.SolenoidFactory;
 import frc.robot.poseestimator.GBPoseEstimator;
 import frc.robot.poseestimator.PoseEstimatorConstants;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.SwerveType;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
@@ -40,8 +46,10 @@ import frc.robot.subsystems.swerve.factories.swerveconstants.SwerveConstantsFact
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.factory.WristFactory;
+import frc.robot.superstructure.RobotState;
 import frc.robot.superstructure.StatesMotionPlanner;
 import frc.robot.superstructure.Superstructure;
+import frc.utils.auto.PathPlannerUtils;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.robot.subsystems.swerve.swervestatehelpers.SwerveStateHelper;
 import frc.robot.vision.limelights.LimeLightConstants;
@@ -52,6 +60,7 @@ import frc.utils.auto.AutonomousChooser;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -139,8 +148,32 @@ public class Robot {
 
 	private void configPathPlanner() {
 		// Register commands...
+		PathPlannerUtils.registerCommand("Shoot", new InstantCommand());
+		PathPlannerUtils.registerCommand(RobotState.INTAKE.name(), superstructure.setState(RobotState.INTAKE).until(superstructure :: isEnableChangeStateAutomatically));
+		PathPlannerUtils.registerCommand(RobotState.INTAKE_WITH_FLYWHEEL.name(), superstructure.setState(RobotState.INTAKE_WITH_FLYWHEEL).until(superstructure :: isEnableChangeStateAutomatically));
+		PathPlannerUtils.registerCommand(RobotState.PRE_SPEAKER.name(), superstructure.setState(RobotState.PRE_SPEAKER));
+		PathPlannerUtils.registerCommand(
+			RobotState.SPEAKER.name(),
+			new SequentialCommandGroup(
+				superstructure.enableChangeStateAutomatically(false),
+				superstructure.setState(RobotState.SPEAKER)
+					.alongWith(swerve.getCommandsBuilder().driveBySavedState(() -> 0, () -> 0, () -> 0))
+					.until(superstructure::isEnableChangeStateAutomatically)
+			)
+		);
+
+		Supplier<Optional<Rotation2d>> angleToSpeakerSupplier = () -> {
+			Translation2d robotRelativeToSpeaker = SwerveMath
+				.getRelativeTranslation(poseEstimator.getEstimatedPose().getTranslation(), Field.getSpeaker().toTranslation2d());
+			if (robotRelativeToSpeaker.getX() <= 4)
+				return Optional.of(robotRelativeToSpeaker.getAngle());
+			return Optional.empty();
+		};
+
+
 		swerve.configPathPlanner(poseEstimator::getEstimatedPose, poseEstimator::resetPose);
-		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
+		PathPlannerUtils.setRotationTargetOverride(angleToSpeakerSupplier);
+//		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 	}
 
 	private void configureBindings() {
@@ -149,7 +182,7 @@ public class Robot {
 
 
 	public Command getAutonomousCommand() {
-		return autonomousChooser.getChosenValue();
+		return AutoBuilder.buildAuto("M231");
 	}
 
 	public GBPoseEstimator getPoseEstimator() {

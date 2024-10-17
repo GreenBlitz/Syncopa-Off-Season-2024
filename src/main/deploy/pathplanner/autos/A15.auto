@@ -42,7 +42,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "INTAKE"
+                  "name": "INTAKE_WITH_FLYWHEEL"
                 }
               }
             ]
@@ -67,7 +67,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "INTAKE"
+                  "name": "INTAKE_WITH_FLYWHEEL"
                 }
               }
             ]

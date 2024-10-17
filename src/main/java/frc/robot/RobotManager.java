@@ -17,6 +17,8 @@ import frc.utils.logger.LoggerFactory;
 import org.littletonrobotics.junction.LoggedRobot;
 import frc.utils.brakestate.BrakeStateManager;
 
+import java.util.Optional;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as described in the TimedRobot
@@ -62,6 +64,7 @@ public class RobotManager extends LoggedRobot {
 
 	@Override
 	public void teleopInit() {
+		PathPlannerUtils.setRotationTargetOverride(Optional::empty);
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}

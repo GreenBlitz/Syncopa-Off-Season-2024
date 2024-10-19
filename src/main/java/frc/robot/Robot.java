@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -182,7 +183,7 @@ public class Robot {
 		};
 
 		PathPlannerUtils.setRotationTargetOverride(angleToSpeakerSupplier);
-		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
+//		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 	}
 
 	private void configureBindings() {
@@ -191,7 +192,7 @@ public class Robot {
 
 
 	public Command getAutonomousCommand() {
-		return autonomousChooser.getChosenValue();
+		return AutoBuilder.buildAuto("M231");
 	}
 
 	public GBPoseEstimator getPoseEstimator() {

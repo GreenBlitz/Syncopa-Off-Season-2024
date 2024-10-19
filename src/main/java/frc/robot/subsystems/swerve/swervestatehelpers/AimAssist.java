@@ -7,6 +7,7 @@ public enum AimAssist {
 	SPEAKER,
 	CLIMB,
 	CLIMB_MOVE_TO_POSE,
+	PASS,
 	AMP;
 
 }

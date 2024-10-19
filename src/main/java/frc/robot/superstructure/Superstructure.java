@@ -1,5 +1,7 @@
 package frc.robot.superstructure;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
 import frc.robot.JoysticksBindings;
@@ -13,11 +15,13 @@ import frc.robot.subsystems.funnel.FunnelState;
 import frc.robot.subsystems.funnel.FunnelStateHandler;
 import frc.robot.subsystems.intake.IntakeState;
 import frc.robot.subsystems.intake.IntakeStateHandler;
+import frc.robot.subsystems.pivot.PivotInterpolationMap;
 import frc.robot.subsystems.pivot.PivotState;
 import frc.robot.subsystems.pivot.PivotStateHandler;
 import frc.robot.subsystems.roller.RollerState;
 import frc.robot.subsystems.roller.RollerStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.SwerveState;
 import frc.robot.subsystems.swerve.swervestatehelpers.AimAssist;
 import frc.robot.subsystems.wrist.WristState;
@@ -52,7 +56,7 @@ public class Superstructure {
 		this.flywheelStateHandler = new FlywheelStateHandler(robot.getFlywheel());
 		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
 		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
-		this.pivotStateHandler = new PivotStateHandler(robot.getPivot());
+		this.pivotStateHandler = new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getEstimatedPose()));
 		this.rollerStateHandler = new RollerStateHandler(robot.getRoller());
 		this.wristStateHandler = new WristStateHandler(robot.getWrist());
 
@@ -93,7 +97,7 @@ public class Superstructure {
 		return isElbowReady && isPivotReady;
 	}
 
-	private boolean isReadyToShoot() {
+	private boolean isReadyToShootClose() {
 		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PRE_SPEAKER.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
 		boolean isFlywheelReady = robot.getFlywheel()
@@ -106,11 +110,44 @@ public class Superstructure {
 		return isFlywheelReady && isPivotReady;
 	}
 
+	private boolean isReadyToPass() {
+		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
+
+		boolean isFlywheelReady = robot.getFlywheel()
+			.isAtVelocities(
+				FlywheelState.PASSING.getRightVelocity(),
+				FlywheelState.PASSING.getLeftVelocity(),
+				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+			);
+
+		return isFlywheelReady && isPivotReady;
+	}
+
+	private boolean isReadyToShootInterpolation() {
+		Translation2d robotTranslation2d = robot.getPoseEstimator().getEstimatedPose().getTranslation();
+
+		double metersFromSpeaker = Field.getSpeaker().toTranslation2d().getDistance(robotTranslation2d);
+		boolean isPivotReady = robot.getPivot()
+			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
+
+		boolean isFlywheelReady = robot.getFlywheel()
+			.isAtVelocities(
+				FlywheelState.PRE_SPEAKER.getRightVelocity(),
+				FlywheelState.PRE_SPEAKER.getLeftVelocity(),
+				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+			);
+
+		Rotation2d angleToSpeaker = SwerveMath.getRelativeTranslation(robotTranslation2d, Field.getSpeaker().toTranslation2d()).getAngle();
+		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker);
+
+		return isFlywheelReady && isPivotReady && isSwerveReady;
+	}
+
 	private Command setCurrentStateName(RobotState state) {
 		return new InstantCommand(() -> currentState = state);
 	}
 
-	private Command enableChangeStateAutomatically(boolean enable) {
+	public Command enableChangeStateAutomatically(boolean enable) {
 		return new InstantCommand(() -> enableChangeStateAutomatically = enable);
 	}
 
@@ -137,6 +174,7 @@ public class Superstructure {
 			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter();
 			case INTAKE_OUTTAKE -> intakeOuttake();
 			case ARM_OUTTAKE -> armOuttake();
+			case PASSING -> passing();
 		};
 	}
 
@@ -159,8 +197,8 @@ public class Superstructure {
 	private Command intake() {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.INTAKE),
+			enableChangeStateAutomatically(false),
 			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					intakeStateHandler.setState(IntakeState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN),
@@ -183,15 +221,15 @@ public class Superstructure {
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.NOTE, Optional.empty())
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
 		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
 	}
 
 	private Command armIntake() {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.ARM_INTAKE),
+			enableChangeStateAutomatically(false),
 			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					intakeStateHandler.setState(IntakeState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN),
@@ -233,27 +271,7 @@ public class Superstructure {
 			rollerStateHandler.setState(RollerState.STOP),
 			intakeStateHandler.setState(IntakeState.STOP),
 			funnelStateHandler.setState(FunnelState.MANUAL),
-			pivotStateHandler.setState(PivotState.PRE_SPEAKER),
-			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
-			elbowStateHandler.setState(ElbowState.IDLE),
-			wristStateHandler.setState(WristState.IN_ARM),
-			swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.SPEAKER, Optional.empty())
-		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
-	}
-
-	private Command speaker() {
-		return new ParallelCommandGroup(
-			setCurrentStateName(RobotState.SPEAKER),
-			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
-				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToShoot),
-				funnelStateHandler.setState(FunnelState.SHOOT).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel())
-				enableChangeStateAutomatically(true),
-				funnelStateHandler.setState(FunnelState.STOP)
-			),
-			rollerStateHandler.setState(RollerState.STOP),
-			intakeStateHandler.setState(IntakeState.STOP),
-			pivotStateHandler.setState(PivotState.PRE_SPEAKER),
+			pivotStateHandler.setState(PivotState.INTERPOLATE),
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
@@ -261,13 +279,41 @@ public class Superstructure {
 		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
 	}
 
-	private Command preAMP() {
+	private Command speaker() {
 		return new ParallelCommandGroup(
+			setCurrentStateName(RobotState.SPEAKER),
 			enableChangeStateAutomatically(false),
-			setCurrentStateName(RobotState.PRE_AMP),
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
-					swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty()),
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				).until(this::isReadyToShootInterpolation),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.SHOOT),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL)
+				).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel()),
+				enableChangeStateAutomatically(true),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				)
+			),
+			rollerStateHandler.setState(RollerState.STOP),
+			pivotStateHandler.setState(PivotState.INTERPOLATE),
+			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
+			elbowStateHandler.setState(ElbowState.INTAKE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER))
+		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
+	}
+
+	private Command preAMP() {
+		return new ParallelCommandGroup(
+			setCurrentStateName(RobotState.PRE_AMP),
+			enableChangeStateAutomatically(false),
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)),
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
 				new ParallelCommandGroup(
@@ -290,12 +336,12 @@ public class Superstructure {
 	private Command amp() {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.AMP),
+			enableChangeStateAutomatically(false),
 			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					rollerStateHandler.setState(RollerState.STOP),
-					swerve.getCommandsBuilder().getAimAssistCommand(AimAssist.AMP, Optional.empty())
+					swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP))
 				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
@@ -322,8 +368,8 @@ public class Superstructure {
 	private Command transferShooterToArm() {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.TRANSFER_SHOOTER_TO_ARM),
+			enableChangeStateAutomatically(false),
 			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.TRANSFER),
 					elbowStateHandler.setState(ElbowState.TRANSFER),
@@ -356,8 +402,8 @@ public class Superstructure {
 	private Command transferArmToShooter() {
 		return new ParallelCommandGroup(
 			setCurrentStateName(RobotState.TRANSFER_ARM_TO_SHOOTER),
+			enableChangeStateAutomatically(false),
 			new SequentialCommandGroup(
-				enableChangeStateAutomatically(false),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.TRANSFER),
 					elbowStateHandler.setState(ElbowState.TRANSFER),
@@ -412,6 +458,34 @@ public class Superstructure {
 			pivotStateHandler.setState(PivotState.INTAKE),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE)
+		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
+	}
+
+	private Command passing() {
+		return new ParallelCommandGroup(
+			setCurrentStateName(RobotState.SPEAKER),
+			new SequentialCommandGroup(
+				enableChangeStateAutomatically(false),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				).until(this::isReadyToPass),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.SHOOT),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL)
+				).withTimeout(Timeouts.SHOOTING_SECONDS), // .until(() -> !isObjectInFunnel()),
+				enableChangeStateAutomatically(true),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				)
+			),
+			rollerStateHandler.setState(RollerState.STOP),
+			pivotStateHandler.setState(PivotState.PASSING),
+			flywheelStateHandler.setState(FlywheelState.PASSING),
+			elbowStateHandler.setState(ElbowState.INTAKE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.PASS))
 		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
 	}
 	//@formatter:on

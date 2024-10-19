@@ -189,7 +189,8 @@ public class SwerveCommandsBuilder {
 
 	public Command getAimAssistCommand(AimAssist aimAssist, Optional<Supplier<Pose2d>> currentPose) {
 		return switch (aimAssist) {
-			case NONE, SPEAKER, NOTE, AMP, CLIMB -> swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(aimAssist));
+			case NONE, SPEAKER, NOTE, AMP, CLIMB, PASS ->
+				swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(aimAssist));
 			case CLIMB_MOVE_TO_POSE -> new DeferredCommand(() -> climbPoseAimAssist(currentPose), Set.of(swerve));
 		};
 	}

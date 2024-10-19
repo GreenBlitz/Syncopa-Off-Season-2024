@@ -36,6 +36,7 @@ import frc.robot.subsystems.solenoid.SolenoidConstants;
 import frc.robot.subsystems.solenoid.factory.SolenoidFactory;
 import frc.robot.poseestimator.GBPoseEstimator;
 import frc.robot.poseestimator.PoseEstimatorConstants;
+import frc.robot.poseestimator.VisionDenoiser;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveMath;
 import frc.robot.subsystems.swerve.SwerveType;
@@ -123,7 +124,8 @@ public class Robot {
 			swerve.getConstants().kinematics(),
 			swerve.getModules().getWheelsPositions(0),
 			swerve.getAbsoluteHeading(),
-			PoseEstimatorConstants.DEFAULT_ODOMETRY_STANDARD_DEVIATIONS
+			PoseEstimatorConstants.DEFAULT_ODOMETRY_STANDARD_DEVIATIONS,
+			new VisionDenoiser(PoseEstimatorConstants.LINEAR_FILTER_SAMPLES_FOR_EACH_VISION_CALCULATION)
 		);
 		limelightFilterer.setEstimatedPoseAtTimestampFunction(poseEstimator::getEstimatedPoseAtTimeStamp);
 

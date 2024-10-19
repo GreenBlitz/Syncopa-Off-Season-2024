@@ -210,7 +210,7 @@ public class Superstructure {
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
-				).withTimeout(Timeouts.INTAKE_FUNNEL_SECONDS),//.until(this::isObjectInFunnel)
+				).until(this::isObjectInFunnel),
 				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					intakeStateHandler.setState(IntakeState.STOP),
@@ -292,7 +292,7 @@ public class Superstructure {
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.SHOOT),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL)
-				).withTimeout(Timeouts.SHOOTING_SECONDS),// .until(() -> !isObjectInFunnel()),
+				).until(() -> !isObjectInFunnel()),
 				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
@@ -416,7 +416,7 @@ public class Superstructure {
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					rollerStateHandler.setState(RollerState.ROLL_OUT)
-				).withTimeout(Timeouts.TRANSFER_ARM_SHOOTER_SECONDS),//.until(this::isObjectInFunnel)
+				).until(this::isObjectInFunnel),
 				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
@@ -505,7 +505,7 @@ public class Superstructure {
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.SHOOT),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL)
-				).withTimeout(Timeouts.SHOOTING_SECONDS), // .until(() -> !isObjectInFunnel()),
+				).until(() -> !isObjectInFunnel()),
 				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),

@@ -4,6 +4,7 @@ public enum FunnelState {
 
 	INTAKE(0.45),
 	SLOW_INTAKE(0.2),
+	SOURCE_INTAKE(-0.2),
 	SHOOT(0.7),
 	OUTTAKE(-0.5),
 	SLOW_OUTTAKE(-0.2),

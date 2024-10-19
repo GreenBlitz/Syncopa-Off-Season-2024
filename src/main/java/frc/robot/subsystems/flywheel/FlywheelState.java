@@ -4,6 +4,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 
 public enum FlywheelState {
 
+	SOURCE_INTAKE(Rotation2d.fromRotations(-15), 1),
+	OUTTAKE(Rotation2d.fromRotations(30), 0.7),
 	DEFAULT(Rotation2d.fromRotations(30), 0.7),
 	PASSING(Rotation2d.fromRotations(50), 0.7),
 	PRE_SPEAKER(Rotation2d.fromRotations(50), 0.7);

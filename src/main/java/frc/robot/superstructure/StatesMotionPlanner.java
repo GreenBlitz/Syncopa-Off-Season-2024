@@ -13,6 +13,13 @@ public class StatesMotionPlanner {
 
 	public Command setState(RobotState state) {
 		return switch (state) {
+<<<<<<< HEAD
+			case INTAKE, SOURCE_INTAKE, ARM_INTAKE, SPEAKER, TRANSFER_SHOOTER_TO_ARM, TRANSFER_ARM_TO_SHOOTER ->
+				superstructure.setState(state)
+					.until(superstructure::isEnableChangeStateAutomatically)
+					.andThen(superstructure.setState(RobotState.IDLE));
+			case INTAKE_OUTTAKE, SHOOTER_OUTTAKE, AMP, ARM_OUTTAKE, PRE_AMP, PRE_SPEAKER, IDLE -> superstructure.setState(state);
+=======
 			case INTAKE, ARM_INTAKE, SPEAKER, TRANSFER_SHOOTER_TO_ARM, TRANSFER_ARM_TO_SHOOTER, PASSING ->
 				new SequentialCommandGroup(
 					superstructure.enableChangeStateAutomatically(false),
@@ -20,6 +27,7 @@ public class StatesMotionPlanner {
 					superstructure.setState(RobotState.IDLE)
 				);
 			case INTAKE_OUTTAKE, AMP, ARM_OUTTAKE, PRE_AMP, PRE_SPEAKER, IDLE -> superstructure.setState(state);
+>>>>>>> core
 		};
 	}
 

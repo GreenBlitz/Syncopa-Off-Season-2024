@@ -110,6 +110,19 @@ public class Superstructure {
 		return isFlywheelReady && isPivotReady;
 	}
 
+	private boolean isReadyToShooterOuttake() {
+		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.IDLE.getTargetPosition(), Tolerances.PIVOT_POSITION);
+
+		boolean isFlywheelReady = robot.getFlywheel()
+			.isAtVelocities(
+				FlywheelState.OUTTAKE.getRightVelocity(),
+				FlywheelState.OUTTAKE.getLeftVelocity(),
+				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+			);
+
+		return isFlywheelReady && isPivotReady;
+	}
+
 	private boolean isReadyToPass() {
 		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
@@ -165,6 +178,7 @@ public class Superstructure {
 		return switch (state) {
 			case IDLE -> idle();
 			case INTAKE -> intake();
+			case SOURCE_INTAKE -> sourceIntake();
 			case ARM_INTAKE -> armIntake();
 			case PRE_SPEAKER -> preSpeaker();
 			case SPEAKER -> speaker();
@@ -173,6 +187,7 @@ public class Superstructure {
 			case TRANSFER_SHOOTER_TO_ARM -> transferShooterToArm();
 			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter();
 			case INTAKE_OUTTAKE -> intakeOuttake();
+			case SHOOTER_OUTTAKE -> shooterOuttake();
 			case ARM_OUTTAKE -> armOuttake();
 			case PASSING -> passing();
 		};
@@ -223,6 +238,44 @@ public class Superstructure {
 			wristStateHandler.setState(WristState.IN_ARM),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
 		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
+	}
+
+	private Command sourceIntake() {
+		return new ParallelCommandGroup(
+			setCurrentStateName(RobotState.SOURCE_INTAKE),
+			new SequentialCommandGroup(
+				enableChangeStateAutomatically(false),
+				new ParallelCommandGroup(
+					rollerStateHandler.setState(RollerState.ROLL_OUT),
+					funnelStateHandler.setState(FunnelState.SOURCE_INTAKE),
+					flywheelStateHandler.setState(FlywheelState.SOURCE_INTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE)
+				).until(this::isObjectInFunnel),
+				new ParallelCommandGroup(
+					noteInRumble(),
+					funnelStateHandler.setState(FunnelState.SOURCE_INTAKE),
+					rollerStateHandler.setState(RollerState.ROLL_OUT),
+					flywheelStateHandler.setState(FlywheelState.SOURCE_INTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE)
+				).until(() -> !isObjectInFunnel()),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.INTAKE),
+					rollerStateHandler.setState(RollerState.ROLL_IN),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
+				).until(this::isObjectInFunnel),
+				enableChangeStateAutomatically(true),
+				new ParallelCommandGroup(
+					rollerStateHandler.setState(RollerState.STOP),
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP)
+				)
+			),
+			pivotStateHandler.setState(PivotState.SOURCE_INTAKE),
+			elbowStateHandler.setState(ElbowState.INTAKE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
+		);
 	}
 
 	private Command armIntake() {
@@ -444,6 +497,27 @@ public class Superstructure {
 			wristStateHandler.setState(WristState.IN_ARM),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE)
 		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
+	}
+
+	private Command shooterOuttake() {
+		return new ParallelCommandGroup(
+			setCurrentStateName(RobotState.SHOOTER_OUTTAKE),
+			new SequentialCommandGroup(
+				enableChangeStateAutomatically(false),
+				funnelStateHandler.setState(FunnelState.STOP).until(this::isReadyToShooterOuttake),
+				funnelStateHandler.setState(FunnelState.SHOOT).until(() -> !isObjectInFunnel()),
+				enableChangeStateAutomatically(true),
+				funnelStateHandler.setState(FunnelState.STOP)
+			),
+			flywheelStateHandler.setState(FlywheelState.OUTTAKE),
+			rollerStateHandler.setState(RollerState.ROLL_OUT),
+			intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
+			funnelStateHandler.setState(FunnelState.SHOOT),
+			pivotStateHandler.setState(PivotState.IDLE),
+			elbowStateHandler.setState(ElbowState.IDLE),
+			wristStateHandler.setState(WristState.IN_ARM),
+			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE)
+		);
 	}
 
 	private Command armOuttake() {

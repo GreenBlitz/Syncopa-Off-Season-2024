@@ -179,7 +179,6 @@ public class Robot {
 			return Optional.empty();
 		};
 
-
 		swerve.configPathPlanner(poseEstimator::getEstimatedPose, poseEstimator::resetPose);
 		PathPlannerUtils.setRotationTargetOverride(angleToSpeakerSupplier);
 		swerve.configPathPlanner(poseEstimator::getEstimatedPose, poseEstimator::resetPose);

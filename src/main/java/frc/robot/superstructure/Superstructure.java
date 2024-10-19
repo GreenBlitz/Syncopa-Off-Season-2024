@@ -490,7 +490,7 @@ public class Superstructure {
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE))
-		);
+		).handleInterrupt(() -> enableChangeStateAutomatically(true).schedule());
 	}
 
 	private Command passing() {

@@ -173,6 +173,14 @@ public class Robot {
 					.until(superstructure::isEnableChangeStateAutomatically)
 			)
 		);
+		PathPlannerUtils.registerCommand(
+				"shoot",
+				new SequentialCommandGroup(
+						superstructure.enableChangeStateAutomatically(false),
+						superstructure.setState(RobotState.SPEAKER)
+								.until(superstructure::isEnableChangeStateAutomatically)
+				)
+		);
 
 		Supplier<Optional<Rotation2d>> angleToSpeakerSupplier = () -> {
 			Translation2d robotRelativeToSpeaker = SwerveMath
@@ -182,6 +190,7 @@ public class Robot {
 			return Optional.empty();
 		};
 
+		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 		PathPlannerUtils.setRotationTargetOverride(angleToSpeakerSupplier);
 	}
 
@@ -191,7 +200,7 @@ public class Robot {
 
 
 	public Command getAutonomousCommand() {
-		return AutoBuilder.buildAuto("M231");
+		return autonomousChooser.getChosenValue();
 	}
 
 	public GBPoseEstimator getPoseEstimator() {

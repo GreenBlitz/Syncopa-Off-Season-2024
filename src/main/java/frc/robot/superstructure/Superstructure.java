@@ -477,7 +477,7 @@ public class Superstructure {
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
-				).withTimeout(Timeouts.INTAKE_FUNNEL_SECONDS),//.until(this::isObjectInFunnel)
+				).until(this::isObjectInFunnel),
 				enableChangeStateAutomatically(true),
 				new ParallelCommandGroup(
 					intakeStateHandler.setState(IntakeState.STOP),

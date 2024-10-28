@@ -8,7 +8,8 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 public class SmartJoystick {
 
-	private static final double DEADZONE = 0.11;
+	private static final double DEADZONE = 0.14
+			;
 	private static final double DEFAULT_THRESHOLD_FOR_AXIS_BUTTON = 0.1;
 	private static final double SENSITIVE_AXIS_VALUE_POWER = 2;
 

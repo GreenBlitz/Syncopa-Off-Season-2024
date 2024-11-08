@@ -7,7 +7,9 @@ import frc.robot.hardware.request.IRequest;
 import frc.robot.hardware.signal.InputSignal;
 import frc.robot.subsystems.GBSubsystem;
 
-public class JointSubsystem extends GBSubsystem {
+import java.util.Arrays;
+
+public class Joint extends GBSubsystem {
 
 	private final ControllableMotor motor;
 	private final JointCommandsBuilder commandsBuilder;
@@ -15,7 +17,7 @@ public class JointSubsystem extends GBSubsystem {
 	private final InputSignal[] otherSignals;
 	private final IRequest<Rotation2d> positionRequest;
 
-	public JointSubsystem(
+	public Joint(
 		String logPath,
 		ControllableMotor motor,
 		IRequest<Rotation2d> positionRequest,
@@ -24,10 +26,10 @@ public class JointSubsystem extends GBSubsystem {
 	) {
 		super(logPath);
 		this.motor = motor;
-		this.commandsBuilder = new JointCommandsBuilder(this);
 		this.positionRequest = positionRequest;
 		this.positionSignal = positionSignal;
 		this.otherSignals = otherSignals;
+		this.commandsBuilder = new JointCommandsBuilder(this);
 	}
 
 	public JointCommandsBuilder getCommandsBuilder() {
@@ -36,18 +38,20 @@ public class JointSubsystem extends GBSubsystem {
 
 	@Override
 	protected void subsystemPeriodic() {
-		updateInputs();
+		updateInputs(positionSignal);
+		updateInputs(otherSignals);
 	}
 
-	private void updateInputs() {
-		for (InputSignal<?> signal : otherSignals) {
-			motor.updateSignals(signal);
-		}
-		motor.updateSignals(positionSignal);
+	private void updateInputs(InputSignal... signals) {
+		motor.updateSignals(signals);
 	}
 
 	public void setBrake(boolean brake) {
 		motor.setBrake(brake);
+	}
+
+	protected void stop(){
+		motor.stop();
 	}
 
 	protected void setPower(double power) {
@@ -55,15 +59,15 @@ public class JointSubsystem extends GBSubsystem {
 	}
 
 	protected void stayInPlace() {
-		setTargetAngle(positionSignal.getLatestValue());
+		setTargetPosition(positionSignal.getLatestValue());
 	}
 
-	protected void setTargetAngle(Rotation2d angle) {
-		motor.applyAngleRequest(positionRequest.withSetPoint(angle));
+	protected void setTargetPosition(Rotation2d position) {
+		motor.applyAngleRequest(positionRequest.withSetPoint(position));
 	}
 
-	public boolean isAtAngle(Rotation2d angle, Rotation2d tolerance) {
-		return MathUtil.isNear(angle.getDegrees(), positionSignal.getLatestValue().getDegrees(), tolerance.getDegrees());
+	public boolean isAtPosition(Rotation2d position, Rotation2d tolerance) {
+		return MathUtil.isNear(position.getDegrees(), positionSignal.getLatestValue().getDegrees(), tolerance.getDegrees());
 	}
 
 }

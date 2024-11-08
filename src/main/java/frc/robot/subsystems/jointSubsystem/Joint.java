@@ -7,7 +7,6 @@ import frc.robot.hardware.request.IRequest;
 import frc.robot.hardware.signal.InputSignal;
 import frc.robot.subsystems.GBSubsystem;
 
-import java.util.Arrays;
 
 public class Joint extends GBSubsystem {
 
@@ -50,7 +49,7 @@ public class Joint extends GBSubsystem {
 		motor.setBrake(brake);
 	}
 
-	protected void stop(){
+	protected void stop() {
 		motor.stop();
 	}
 

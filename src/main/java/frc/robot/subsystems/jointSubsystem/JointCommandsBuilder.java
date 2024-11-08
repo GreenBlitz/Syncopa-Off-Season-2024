@@ -23,15 +23,15 @@ public class JointCommandsBuilder {
 		return new RunCommand(() -> joint.setPower(doubleSupplier.getAsDouble()), joint).withName("Set power by supplier");
 	}
 
-	public Command stop(){
+	public Command stop() {
 		return new RunCommand(joint::stop).withName("Stop");
 	}
 
-	public Command moveToPosition(Rotation2d position){
+	public Command moveToPosition(Rotation2d position) {
 		return new RunCommand(() -> joint.setTargetPosition(position), joint).withName("Move to position: " + position);
 	}
 
-	public Command moveToPosition(Supplier<Rotation2d> positionSupplier){
+	public Command moveToPosition(Supplier<Rotation2d> positionSupplier) {
 		return new RunCommand(() -> joint.setTargetPosition(positionSupplier.get()), joint).withName("Move to position by supplier");
 	}
 

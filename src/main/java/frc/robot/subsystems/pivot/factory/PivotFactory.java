@@ -2,7 +2,6 @@ package frc.robot.subsystems.pivot.factory;
 
 import frc.robot.Robot;
 import frc.robot.subsystems.jointSubsystem.Joint;
-import frc.robot.subsystems.pivot.PivotStuff;
 
 public class PivotFactory {
 

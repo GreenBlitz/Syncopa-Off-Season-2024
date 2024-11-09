@@ -46,19 +46,19 @@ public class RealWristConstants {
 		);
 	}
 
-	protected static Joint generateJointWrist(String logPath){
+	protected static Joint generateJointWrist(String logPath) {
 		TalonSRX motor = new TalonSRX(IDs.TalonSRXs.WRIST);
 		configMotor(motor);
 
 		Supplier<Double> positionSupplier = () -> Conversions.magTicksToAngle(motor.getSelectedSensorPosition(), WristConstants.GEAR_RATIO)
-				.getRotations();
+			.getRotations();
 		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", positionSupplier, AngleUnit.ROTATIONS);
 
 		return new Joint(
-				logPath,
-				new TalonSRXMotor(logPath, motor, WristConstants.GEAR_RATIO),
-				new AngleSRXRequest(ControlMode.Position, POSITION_PID_SLOT),
-				positionSignal
+			logPath,
+			new TalonSRXMotor(logPath, motor, WristConstants.GEAR_RATIO),
+			new AngleSRXRequest(ControlMode.Position, POSITION_PID_SLOT),
+			positionSignal
 		);
 	}
 

@@ -79,7 +79,7 @@ public class RealPivotConstants {
 		return new PivotStuff(logPath, pivot, positionRequest, positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}
 
-	protected static Joint generateJointPivot(String logPath){
+	protected static Joint generateJointPivot(String logPath) {
 		Phoenix6AngleRequest positionRequest = new Phoenix6AngleRequest(new PositionVoltage(0).withEnableFOC(true));
 
 		TalonFXWrapper motor = new TalonFXWrapper(IDs.TalonFXIDs.PIVOT);
@@ -88,23 +88,16 @@ public class RealPivotConstants {
 		}
 
 		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(motor.getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+			.generatePhoenix6Signal(motor.getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6LatencySignal positionSignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(motor.getPosition(), velocitySignal, GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+			.generatePhoenix6Signal(motor.getPosition(), velocitySignal, GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6DoubleSignal currentSignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(motor.getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(motor.getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal voltageSignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(motor.getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.generatePhoenix6Signal(motor.getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 
 		TalonFXMotor pivot = new TalonFXMotor(logPath, motor, generateSysidConfig());
-		return new Joint(
-				logPath,
-				pivot,
-				positionRequest,
-				positionSignal,
-				currentSignal,
-				voltageSignal
-		);
+		return new Joint(logPath, pivot, positionRequest, positionSignal, currentSignal, voltageSignal);
 	}
 
 }

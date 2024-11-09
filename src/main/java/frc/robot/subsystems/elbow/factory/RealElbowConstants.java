@@ -77,7 +77,7 @@ public class RealElbowConstants {
 		);
 	}
 
-	protected static Joint generateJointElbow(String logPath){
+	protected static Joint generateJointElbow(String logPath) {
 		SparkMaxWrapper motor = new SparkMaxWrapper(IDs.CANSparkMAXs.ELBOW);
 		configMotor(motor);
 
@@ -87,15 +87,7 @@ public class RealElbowConstants {
 		SuppliedDoubleSignal voltageSignal = new SuppliedDoubleSignal("voltage", motor::getVoltage);
 
 		BrushlessSparkMAXMotor elbow = new BrushlessSparkMAXMotor(logPath, motor, new SysIdRoutine.Config());
-		return new Joint(
-				logPath,
-				elbow,
-				generatePositionRequest(),
-				positionSignal,
-				velocitySignal,
-				currentSignal,
-				voltageSignal
-		);
+		return new Joint(logPath, elbow, generatePositionRequest(), positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}
 
 }

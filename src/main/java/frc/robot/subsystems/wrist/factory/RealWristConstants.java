@@ -10,7 +10,6 @@ import frc.robot.hardware.request.srx.AngleSRXRequest;
 import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;
 import frc.robot.subsystems.jointSubsystem.Joint;
 import frc.robot.subsystems.wrist.WristConstants;
-import frc.robot.subsystems.wrist.WristStuff;
 import frc.utils.AngleUnit;
 import frc.utils.Conversions;
 
@@ -28,22 +27,6 @@ public class RealWristConstants {
 		motor.configPeakCurrentLimit(30);
 		motor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative);
 		motor.config_kP(POSITION_PID_SLOT, 1);
-	}
-
-	protected static WristStuff generateWristStuff(String logPath) {
-		TalonSRX motor = new TalonSRX(IDs.TalonSRXs.WRIST);
-		configMotor(motor);
-
-		Supplier<Double> positionSupplier = () -> Conversions.magTicksToAngle(motor.getSelectedSensorPosition(), WristConstants.GEAR_RATIO)
-			.getRotations();
-		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", positionSupplier, AngleUnit.ROTATIONS);
-
-		return new WristStuff(
-			logPath,
-			new TalonSRXMotor(logPath, motor, WristConstants.GEAR_RATIO),
-			new AngleSRXRequest(ControlMode.Position, POSITION_PID_SLOT),
-			positionSignal
-		);
 	}
 
 	protected static Joint generateJointWrist(String logPath) {

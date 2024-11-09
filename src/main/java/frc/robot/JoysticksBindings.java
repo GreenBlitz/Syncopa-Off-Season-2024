@@ -92,7 +92,7 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
 
-		usedJoystick.R1.onTrue(robot.getPivot().getCommandsBuilder().calibInterpolation());
+		usedJoystick.R1.onTrue(robot.getPivot().getCommandsBuilder().moveToPositionByDashboard());
 		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getStatesMotionPlanner().setState(RobotState.SPEAKER_MANUAL_PIVOT));
 	}
 

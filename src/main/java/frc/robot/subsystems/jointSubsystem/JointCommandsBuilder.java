@@ -36,12 +36,8 @@ public class JointCommandsBuilder {
 		return new RunCommand(() -> joint.setTargetPosition(positionSupplier.get()), joint).withName("Move to position by supplier");
 	}
 
-	public Command moveToPositionByDashboard(){
-		return new LoggedDashboardCommand(
-				"moveToPosition",
-				position -> joint.setTargetPosition(Rotation2d.fromDegrees(position)),
-				joint
-		);
+	public Command moveToPositionByDashboard() {
+		return new LoggedDashboardCommand("moveToPosition", position -> joint.setTargetPosition(Rotation2d.fromDegrees(position)), joint);
 	}
 
 	public Command stayInPlace() {

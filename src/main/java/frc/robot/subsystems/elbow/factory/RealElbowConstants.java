@@ -13,7 +13,6 @@ import frc.robot.hardware.request.cansparkmax.SparkMaxDoubleRequest;
 import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;
 import frc.robot.hardware.signal.supplied.SuppliedDoubleSignal;
 import frc.robot.subsystems.elbow.ElbowConstants;
-import frc.robot.subsystems.elbow.ElbowStuff;
 import frc.robot.subsystems.jointSubsystem.Joint;
 import frc.utils.AngleUnit;
 
@@ -53,28 +52,6 @@ public class RealElbowConstants {
 		motor.getPIDController().setD(0.5, POSITION_PID_SLOT);
 		motor.getEncoder().setPositionConversionFactor(ElbowConstants.GEAR_RATIO);
 		motor.getEncoder().setPositionConversionFactor(ElbowConstants.GEAR_RATIO);
-	}
-
-	protected static ElbowStuff generateElbowStuff(String logPath) {
-		SparkMaxWrapper motor = new SparkMaxWrapper(IDs.CANSparkMAXs.ELBOW);
-		configMotor(motor);
-
-		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", () -> motor.getEncoder().getPosition(), AngleUnit.ROTATIONS);
-		SuppliedAngleSignal velocitySignal = new SuppliedAngleSignal("velocity", () -> motor.getEncoder().getVelocity(), AngleUnit.ROTATIONS);
-		SuppliedDoubleSignal currentSignal = new SuppliedDoubleSignal("output current", motor::getOutputCurrent);
-		SuppliedDoubleSignal voltageSignal = new SuppliedDoubleSignal("voltage", motor::getVoltage);
-
-		BrushlessSparkMAXMotor elbow = new BrushlessSparkMAXMotor(logPath, motor, new SysIdRoutine.Config());
-		return new ElbowStuff(
-			logPath,
-			elbow,
-			generatePositionRequest(),
-			generateVoltageRequest(),
-			positionSignal,
-			velocitySignal,
-			currentSignal,
-			voltageSignal
-		);
 	}
 
 	protected static Joint generateJointElbow(String logPath) {

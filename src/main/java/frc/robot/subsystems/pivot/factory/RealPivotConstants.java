@@ -17,7 +17,6 @@ import frc.robot.hardware.signal.phoenix.Phoenix6LatencySignal;
 import frc.robot.hardware.signal.phoenix.Phoenix6SignalBuilder;
 import frc.robot.subsystems.jointSubsystem.Joint;
 import frc.robot.subsystems.pivot.PivotConstants;
-import frc.robot.subsystems.pivot.PivotStuff;
 import frc.utils.AngleUnit;
 import frc.utils.alerts.Alert;
 
@@ -56,27 +55,6 @@ public class RealPivotConstants {
 		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
 		return configuration;
-	}
-
-	protected static PivotStuff generatePivotStuff(String logPath) {
-		Phoenix6AngleRequest positionRequest = new Phoenix6AngleRequest(new PositionVoltage(0).withEnableFOC(true));
-
-		TalonFXWrapper motor = new TalonFXWrapper(IDs.TalonFXIDs.PIVOT);
-		if (!motor.applyConfiguration(generateMotorConfig(), APPLY_CONFIG_RETRIES).isOK()) {
-			new Alert(Alert.AlertType.ERROR, logPath + "ConfigurationFail").report();
-		}
-
-		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(motor.getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
-		Phoenix6LatencySignal positionSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(motor.getPosition(), velocitySignal, GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
-		Phoenix6DoubleSignal currentSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(motor.getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
-		Phoenix6DoubleSignal voltageSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(motor.getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
-
-		TalonFXMotor pivot = new TalonFXMotor(logPath, motor, generateSysidConfig());
-		return new PivotStuff(logPath, pivot, positionRequest, positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}
 
 	protected static Joint generateJointPivot(String logPath) {

@@ -8,6 +8,7 @@ import frc.robot.constants.IDs;
 import frc.robot.hardware.motor.talonsrx.TalonSRXMotor;
 import frc.robot.hardware.request.srx.AngleSRXRequest;
 import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;
+import frc.robot.subsystems.jointSubsystem.Joint;
 import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.WristStuff;
 import frc.utils.AngleUnit;
@@ -42,6 +43,22 @@ public class RealWristConstants {
 			new TalonSRXMotor(logPath, motor, WristConstants.GEAR_RATIO),
 			new AngleSRXRequest(ControlMode.Position, POSITION_PID_SLOT),
 			positionSignal
+		);
+	}
+
+	protected static Joint generateJointWrist(String logPath){
+		TalonSRX motor = new TalonSRX(IDs.TalonSRXs.WRIST);
+		configMotor(motor);
+
+		Supplier<Double> positionSupplier = () -> Conversions.magTicksToAngle(motor.getSelectedSensorPosition(), WristConstants.GEAR_RATIO)
+				.getRotations();
+		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", positionSupplier, AngleUnit.ROTATIONS);
+
+		return new Joint(
+				logPath,
+				new TalonSRXMotor(logPath, motor, WristConstants.GEAR_RATIO),
+				new AngleSRXRequest(ControlMode.Position, POSITION_PID_SLOT),
+				positionSignal
 		);
 	}
 

@@ -1,12 +1,13 @@
 package frc.robot.subsystems.wrist;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.jointSubsystem.Joint;
 
 public class WristStateHandler {
 
-	private final Wrist wrist;
+	private final Joint wrist;
 
-	public WristStateHandler(Wrist wrist) {
+	public WristStateHandler(Joint wrist) {
 		this.wrist = wrist;
 	}
 

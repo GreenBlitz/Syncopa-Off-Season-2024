@@ -78,16 +78,16 @@ public class RealElbowConstants {
 	}
 
 	protected static Joint generateJointElbow(String logPath) {
-		SparkMaxWrapper motor = new SparkMaxWrapper(IDs.CANSparkMAXs.ELBOW);
-		configMotor(motor);
+		SparkMaxWrapper sparkMax = new SparkMaxWrapper(IDs.CANSparkMAXs.ELBOW);
+		configMotor(sparkMax);
 
-		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", () -> motor.getEncoder().getPosition(), AngleUnit.ROTATIONS);
-		SuppliedAngleSignal velocitySignal = new SuppliedAngleSignal("velocity", () -> motor.getEncoder().getVelocity(), AngleUnit.ROTATIONS);
-		SuppliedDoubleSignal currentSignal = new SuppliedDoubleSignal("output current", motor::getOutputCurrent);
-		SuppliedDoubleSignal voltageSignal = new SuppliedDoubleSignal("voltage", motor::getVoltage);
+		SuppliedAngleSignal positionSignal = new SuppliedAngleSignal("position", () -> sparkMax.getEncoder().getPosition(), AngleUnit.ROTATIONS);
+		SuppliedAngleSignal velocitySignal = new SuppliedAngleSignal("velocity", () -> sparkMax.getEncoder().getVelocity(), AngleUnit.ROTATIONS);
+		SuppliedDoubleSignal currentSignal = new SuppliedDoubleSignal("output current", sparkMax::getOutputCurrent);
+		SuppliedDoubleSignal voltageSignal = new SuppliedDoubleSignal("voltage", sparkMax::getVoltage);
 
-		BrushlessSparkMAXMotor elbow = new BrushlessSparkMAXMotor(logPath, motor, new SysIdRoutine.Config());
-		return new Joint(logPath, elbow, generatePositionRequest(), positionSignal, velocitySignal, currentSignal, voltageSignal);
+		BrushlessSparkMAXMotor motor = new BrushlessSparkMAXMotor(logPath, sparkMax, new SysIdRoutine.Config());
+		return new Joint(logPath, motor, generatePositionRequest(), positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}
 
 }

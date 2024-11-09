@@ -5,17 +5,18 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.constants.Field;
+import frc.robot.subsystems.jointSubsystem.Joint;
 
 import java.util.Optional;
 import java.util.function.Supplier;
 
 public class PivotStateHandler {
 
-	private final Pivot pivot;
+	private final Joint pivot;
 
 	private final Optional<Supplier<Pose2d>> robotPoseSupplier;
 
-	public PivotStateHandler(Pivot pivot, Optional<Supplier<Pose2d>> robotPoseSupplier) {
+	public PivotStateHandler(Joint pivot, Optional<Supplier<Pose2d>> robotPoseSupplier) {
 		this.pivot = pivot;
 		this.robotPoseSupplier = robotPoseSupplier;
 	}

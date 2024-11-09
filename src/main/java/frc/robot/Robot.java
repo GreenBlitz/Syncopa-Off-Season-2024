@@ -18,6 +18,7 @@ import frc.robot.subsystems.elbow.factory.ElbowFactory;
 import frc.robot.subsystems.flywheel.FlyWheelConstants;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.factory.FlywheelFactory;
+import frc.robot.subsystems.jointSubsystem.Joint;
 import frc.robot.subsystems.lifter.Lifter;
 import frc.robot.subsystems.lifter.LifterConstants;
 import frc.robot.subsystems.lifter.factory.LifterFactory;
@@ -75,12 +76,12 @@ public class Robot {
 	private final Solenoid solenoid;
 	private final Funnel funnel;
 	private final Intake intake;
-	private final Elbow elbow;
+	private final Joint elbow;
 	private final Flywheel flywheel;
-	private final Pivot pivot;
+	private final Joint pivot;
 	private final Lifter lifter;
 	private final Roller roller;
-	private final Wrist wrist;
+	private final Joint wrist;
 
 	private final Superstructure superstructure;
 	private final StatesMotionPlanner statesMotionPlanner;
@@ -94,16 +95,16 @@ public class Robot {
 		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
 		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
 		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
-		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
+		this.pivot = PivotFactory.create(PivotConstants.LOG_PATH);
 		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
-		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
+		this.elbow = ElbowFactory.create(ElbowConstants.LOG_PATH);
 		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
 		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
 		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
 		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
 		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
 		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
-		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
+		this.wrist = WristFactory.create(WristConstants.LOG_PATH);
 		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
 
 		this.multiLimelights = new MultiLimelights(LimeLightConstants.LIMELIGHT_NAMES, "limelightsHardware/");
@@ -191,7 +192,7 @@ public class Robot {
 		return intake;
 	}
 
-	public Elbow getElbow() {
+	public Joint getElbow() {
 		return elbow;
 	}
 
@@ -199,7 +200,7 @@ public class Robot {
 		return flywheel;
 	}
 
-	public Pivot getPivot() {
+	public Joint getPivot() {
 		return pivot;
 	}
 
@@ -211,7 +212,7 @@ public class Robot {
 		return roller;
 	}
 
-	public Wrist getWrist() {
+	public Joint getWrist() {
 		return wrist;
 	}
 

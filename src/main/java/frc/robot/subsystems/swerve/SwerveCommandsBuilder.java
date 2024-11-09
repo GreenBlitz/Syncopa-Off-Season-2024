@@ -11,16 +11,18 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.constants.Field;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
+import frc.robot.subsystems.swerve.swervestatehelpers.AimAssist;
 import frc.robot.subsystems.swerve.swervestatehelpers.RotateAxis;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.calibration.swervecalibration.WheelRadiusCharacterization;
 import frc.utils.calibration.sysid.SysIdCalibrator;
 import frc.utils.utilcommands.InitExecuteCommand;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.DoubleSupplier;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SwerveCommandsBuilder {
@@ -78,7 +80,6 @@ public class SwerveCommandsBuilder {
 		).withName("Wheel radius calibration");
 	}
 	//@formatter:on
-
 
 	public Command pointWheelsInX() {
 		return new FunctionalCommand(
@@ -156,12 +157,9 @@ public class SwerveCommandsBuilder {
 	}
 
 
-	public Command driveToPose(Supplier<Pose2d> currentPose, Supplier<Pose2d> targetPose, Function<Pose2d, Boolean> isAtPose) {
+	public Command driveToPose(Supplier<Pose2d> currentPose, Supplier<Pose2d> targetPose) {
 		return new DeferredCommand(
-			() -> new SequentialCommandGroup(
-				pathToPose(currentPose.get(), targetPose.get()),
-				pidToPose(currentPose, targetPose.get(), isAtPose)
-			),
+			() -> new SequentialCommandGroup(pathToPose(currentPose.get(), targetPose.get()), pidToPose(currentPose, targetPose.get())),
 			Set.of(swerve)
 		).withName("Drive to pose");
 	}
@@ -179,14 +177,30 @@ public class SwerveCommandsBuilder {
 			.withName("Path to pose: " + targetPose);
 	}
 
-	private Command pidToPose(Supplier<Pose2d> currentPose, Pose2d targetPose, Function<Pose2d, Boolean> isAtPose) {
+	private Command pidToPose(Supplier<Pose2d> currentPose, Pose2d targetPose) {
 		return new FunctionalCommand(
 			swerve::resetPIDControllers,
 			() -> swerve.pidToPose(currentPose.get(), targetPose),
 			interrupted -> {},
-			() -> isAtPose.apply(targetPose),
+			() -> false,
 			swerve
 		).withName("PID to pose: " + targetPose);
+	}
+
+	public Command getAimAssistCommand(AimAssist aimAssist, Optional<Supplier<Pose2d>> currentPose) {
+		return switch (aimAssist) {
+			case NONE, SPEAKER, NOTE, AMP, CLIMB, PASS ->
+				swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(aimAssist));
+			case CLIMB_MOVE_TO_POSE -> new DeferredCommand(() -> climbPoseAimAssist(currentPose), Set.of(swerve));
+		};
+	}
+
+	private Command climbPoseAimAssist(Optional<Supplier<Pose2d>> currentPose) {
+		if (currentPose.isEmpty()) {
+			return swerve.getCommandsBuilder().saveState(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NONE));
+		}
+		Pose2d closestClimb = Field.getClosetClimb(currentPose.get().get());
+		return swerve.getCommandsBuilder().driveToPose(() -> currentPose.get().get(), () -> closestClimb);
 	}
 
 }

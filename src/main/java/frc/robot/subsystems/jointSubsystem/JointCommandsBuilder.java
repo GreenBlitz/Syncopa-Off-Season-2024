@@ -3,6 +3,7 @@ package frc.robot.subsystems.jointSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.utils.utilcommands.LoggedDashboardCommand;
 
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -33,6 +34,14 @@ public class JointCommandsBuilder {
 
 	public Command moveToPosition(Supplier<Rotation2d> positionSupplier) {
 		return new RunCommand(() -> joint.setTargetPosition(positionSupplier.get()), joint).withName("Move to position by supplier");
+	}
+
+	public Command moveToPositionByDashboard(){
+		return new LoggedDashboardCommand(
+				"moveToPosition",
+				position -> joint.setTargetPosition(Rotation2d.fromDegrees(position)),
+				joint
+		);
 	}
 
 	public Command stayInPlace() {

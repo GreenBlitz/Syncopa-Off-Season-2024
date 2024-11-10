@@ -99,6 +99,24 @@ public class JoysticksBindings {
 	private static void fourthJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = FOURTH_JOYSTICK;
 		// bindings...
+		/*
+		JOINT TESTING BINDINGS
+		 */
+
+		//move
+		usedJoystick.A.onTrue(robot.getElbow().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(60)));
+		usedJoystick.B.onTrue(robot.getWrist().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(58)));
+		usedJoystick.Y.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(89)));
+
+		//setpower
+		usedJoystick.POV_UP.onTrue(robot.getElbow().getCommandsBuilder().setPower(0.3));
+		usedJoystick.POV_DOWN.onTrue(robot.getWrist().getCommandsBuilder().setPower(0.3));
+		usedJoystick.POV_RIGHT.onTrue(robot.getPivot().getCommandsBuilder().setPower(0.3));
+
+		//dashboard
+		usedJoystick.R1.onTrue(robot.getElbow().getCommandsBuilder().moveToPositionByDashboard());
+		usedJoystick.L1.onTrue(robot.getWrist().getCommandsBuilder().moveToPositionByDashboard());
+		usedJoystick.START.onTrue(robot.getPivot().getCommandsBuilder().moveToPositionByDashboard());
 	}
 
 	private static void fifthJoystickButtons(Robot robot) {

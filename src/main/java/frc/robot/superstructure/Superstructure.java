@@ -32,16 +32,17 @@ import frc.utils.joysticks.SmartJoystick;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
 
-	private interface RobotCommandGenerator {
+	public interface RobotCommandGenerator {
 
 		Command makeRobotCommand(Command command, RobotState state);
 
 	}
 
-	private final RobotCommandGenerator robotCommandGenerator = (command, state) -> {
+	public final RobotCommandGenerator robotCommandGenerator = (command, state) -> {
 		command.addRequirements(this);
 		return command.beforeStarting(setCurrentStateName(state));
 	};
@@ -77,7 +78,7 @@ public class Superstructure extends GBSubsystem {
 
 		this.currentState = RobotState.IDLE;
 		this.endBehaviorManager = new EndBehaviorManager(this);
-		setDefaultCommand(endBehaviorManager.endState(currentState).asProxy()); // todo - test
+		setDefaultCommand(new DeferredCommand(() -> endBehaviorManager.endState(currentState), Set.of(this))); // todo - test
 	}
 
 	public RobotState getCurrentState() {
@@ -147,13 +148,13 @@ public class Superstructure extends GBSubsystem {
 				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
 			);
 
-		Rotation2d angleToSpeaker = SwerveMath.getRelativeTranslation(robotTranslation2d, Field.getSpeaker().toTranslation2d()).getAngle();
-		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker);
+//		Rotation2d angleToSpeaker = SwerveMath.getRelativeTranslation(robotTranslation2d, Field.getSpeaker().toTranslation2d()).getAngle();
+//		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker);
 
-		return isFlywheelReady && isPivotReady && isSwerveReady;
+		return isFlywheelReady && isPivotReady;// && isSwerveReady;
 	}
 
-	private Command setCurrentStateName(RobotState state) {
+	public Command setCurrentStateName(RobotState state) {
 		return new InstantCommand(() -> currentState = state);
 	}
 
@@ -170,9 +171,9 @@ public class Superstructure extends GBSubsystem {
 	private Command driveByMainJoystick(SwerveState state) {
 		return swerve.getCommandsBuilder()
 			.driveState(
-				() -> mainJoystick.getAxisValue(Axis.LEFT_Y),
-				() -> mainJoystick.getAxisValue(Axis.LEFT_X),
-				() -> mainJoystick.getAxisValue(Axis.RIGHT_X),
+				() -> 0,
+				() -> 0,
+				() -> 0,
 				state
 			);
 	}
@@ -325,7 +326,7 @@ public class Superstructure extends GBSubsystem {
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP)
-				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
+				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())).withTimeout(0.5),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
@@ -336,7 +337,7 @@ public class Superstructure extends GBSubsystem {
 					intakeStateHandler.setState(IntakeState.STOP)
 				)
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE),
 			rollerStateHandler.setState(RollerState.STOP),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
@@ -350,7 +351,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					rollerStateHandler.setState(RollerState.STOP)
-				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())),
+				).until(() -> swerve.isAtHeading(Field.getAngleToAmp())).withTimeout(0.5),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
@@ -362,7 +363,7 @@ public class Superstructure extends GBSubsystem {
 					rollerStateHandler.setState(RollerState.ROLL_OUT)
 				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)

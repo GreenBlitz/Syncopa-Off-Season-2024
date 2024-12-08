@@ -58,7 +58,7 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 		this.latestWheelPositions = initialWheelPositions;
 		this.latestGyroAngle = initialGyroAngle;
 		this.odometryStandardDeviations = new double[PoseArrayEntryValue.POSE_ARRAY_LENGTH];
-		this.limelightFilterer.setEstimatedPoseAtTimestampFunction(this::getEstimatedPoseAtTimeStamp);
+		this.limelightFilterer.setEstimatedPoseAtTimestampFunction(this::getEstimatedPoseAtTimestamp);
 		this.hasHeadingOffsetBeenInitialized = false;
 		this.isCurrentlyEnabled = false;
 		setOdometryStandardDeviations(odometryStandardDeviations);
@@ -92,7 +92,6 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 	}
 	//@formatter:on
 
-	@Override
 	public void resetHeadingOffset(Rotation2d newHeading) {
 		if (latestGyroAngle != null) {
 			headingOffset = newHeading.minus(latestGyroAngle);
@@ -119,7 +118,6 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 		return PoseEstimationMath.calculateAngleAverage(stackedHeadingEstimations);
 	}
 
-	@Override
 	public void setOdometryStandardDeviations(double[] newStandardDeviations) {
 		for (int i = 0; i < newStandardDeviations.length; i++) {
 			odometryStandardDeviations[i] = newStandardDeviations[i] * newStandardDeviations[i];
@@ -137,6 +135,10 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 	}
 	// @pose-swerveAdditions:off
 
+	// created while merging, donno what to do
+	@Override
+	public void updateOdometry(OdometryObservation[] odometryObservations) {}
+
 	@Override
 	public void resetOdometry(SwerveModulePosition[] wheelPositions, Rotation2d gyroAngle, Pose2d robotPose) {
 		this.latestWheelPositions = wheelPositions;
@@ -149,6 +151,10 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 	public Pose2d getOdometryPose() {
 		return odometryPose;
 	}
+
+	// created while merging, donno what to do
+	@Override
+	public void setHeading(Rotation2d newHeading) {}
 
 	@Override
 	public Optional<Pose2d> getVisionPose() {
@@ -176,9 +182,10 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 		return estimatedPose;
 	}
 
+	// created while merging, donno what to do
 	@Override
-	public Pose2d getEstimatedPoseAtTimeStamp(double timeStamp) {
-		Optional<Pose2d> estimatedPoseAtTimestamp = estimatedPoseInterpolator.getSample(timeStamp);
+	public Pose2d getEstimatedPoseAtTimestamp(double timestamp) {
+		Optional<Pose2d> estimatedPoseAtTimestamp = estimatedPoseInterpolator.getSample(timestamp);
 		return estimatedPoseAtTimestamp.orElseGet(() -> Objects.requireNonNullElseGet(estimatedPose, Pose2d::new));
 	}
 
@@ -194,7 +201,6 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 		// @pose-swerveAdditions:off
 	}
 
-	@Override
 	public void updateOdometry(List<OdometryObservation> odometryObservations) {
 		for (OdometryObservation observation : odometryObservations) {
 			addOdometryObservation(observation);
@@ -239,10 +245,10 @@ public class GBPoseEstimator extends GBSubsystem implements IPoseEstimator {
 		// @pose-swerveAdditions:on
 		Logger.recordOutput("inside odometry", observation.timestamp());
 		// @pose-swerveAdditions:off
-		Twist2d twist = kinematics.toTwist2d(latestWheelPositions, observation.wheelsPositions());
+		Twist2d twist = kinematics.toTwist2d(latestWheelPositions, observation.wheelPositions());
 		twist = PoseEstimationMath.addGyroToTwist(twist, observation.gyroAngle().plus(headingOffset), latestGyroAngle.plus(headingOffset));
 		latestGyroAngle = observation.gyroAngle();
-		latestWheelPositions = observation.wheelsPositions();
+		latestWheelPositions = observation.wheelPositions();
 		odometryPose = odometryPose.exp(twist);
 		estimatedPose = estimatedPose.exp(twist);
 		odometryPoseInterpolator.addSample(observation.timestamp(), odometryPose);

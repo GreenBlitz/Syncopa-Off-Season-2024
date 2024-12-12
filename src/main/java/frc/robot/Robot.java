@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
@@ -81,6 +83,8 @@ public class Robot {
 //
 	private final Superstructure superstructure;
 	private final StatesMotionPlanner statesMotionPlanner;
+
+	public static final Mechanism2d mechanism2d = new Mechanism2d(20,20);
 
 	public Robot() {
 //		this.swerve = new Swerve(

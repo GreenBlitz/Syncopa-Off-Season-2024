@@ -64,77 +64,77 @@ public class Robot {
 
 	private AutonomousChooser autonomousChooser;
 
-	private final GBPoseEstimator poseEstimator;
+//	private final GBPoseEstimator poseEstimator;
 	private final LimelightFilterer limelightFilterer;
 	private final MultiLimelights multiLimelights;
 
-	private final Swerve swerve;
-	private final Solenoid solenoid;
-	private final Funnel funnel;
-	private final Intake intake;
+//	private final Swerve swerve;
+//	private final Solenoid solenoid;
+//	private final Funnel funnel;
+//	private final Intake intake;
 	private final Elbow elbow;
 	private final Flywheel flywheel;
-	private final Pivot pivot;
-	private final Lifter lifter;
-	private final Roller roller;
-	private final Wrist wrist;
-
+//	private final Pivot pivot;
+//	private final Lifter lifter;
+//	private final Roller roller;
+//	private final Wrist wrist;
+//
 	private final Superstructure superstructure;
 	private final StatesMotionPlanner statesMotionPlanner;
 
 	public Robot() {
-		this.swerve = new Swerve(
-			SwerveConstantsFactory.create(SwerveType.SWERVE),
-			ModulesFactory.create(SwerveType.SWERVE),
-			GyroFactory.create(SwerveType.SWERVE)
-		);
-		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
-		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
+//		this.swerve = new Swerve(
+//			SwerveConstantsFactory.create(SwerveType.SWERVE),
+//			ModulesFactory.create(SwerveType.SWERVE),
+//			GyroFactory.create(SwerveType.SWERVE)
+//		);
+//		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
+//		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
 		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
-		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
-		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
+//		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
 		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
 		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
-		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
-		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
-		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
-		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
-		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
-		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
-		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
-
+//		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
+//		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
+//		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
+//		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
+//
 		this.multiLimelights = new MultiLimelights(LimeLightConstants.LIMELIGHT_NAMES, "limelightsHardware/");
 		this.limelightFilterer = new LimelightFilterer(
 			new LimelightFiltererConfig("limelightfilterer/", LimeLightConstants.DEFAULT_LIMELIGHT_FILTERS_TOLERANCES),
 			multiLimelights
 		);
-		this.poseEstimator = new GBPoseEstimator(
-			swerve::setHeading,
-			"PoseEstimator/",
-			limelightFilterer,
-			swerve.getConstants().kinematics(),
-			swerve.getModules().getWheelsPositions(0),
-			swerve.getAbsoluteHeading(),
-			PoseEstimatorConstants.DEFAULT_ODOMETRY_STANDARD_DEVIATIONS,
-			new VisionDenoiser(PoseEstimatorConstants.LINEAR_FILTER_SAMPLES_FOR_EACH_VISION_CALCULATION)
-		);
-		limelightFilterer.setEstimatedPoseAtTimestampFunction(poseEstimator::getEstimatedPoseAtTimestamp);
-
-		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-		swerve.setStateHelper(new SwerveStateHelper(() -> Optional.of(poseEstimator.getEstimatedPose()), Optional::empty, swerve));
-
+//		this.poseEstimator = new GBPoseEstimator(
+//			swerve::setHeading,
+//			"PoseEstimator/",
+//			limelightFilterer,
+//			swerve.getConstants().kinematics(),
+//			swerve.getModules().getWheelsPositions(0),
+//			swerve.getAbsoluteHeading(),
+//			PoseEstimatorConstants.DEFAULT_ODOMETRY_STANDARD_DEVIATIONS,
+//			new VisionDenoiser(PoseEstimatorConstants.LINEAR_FILTER_SAMPLES_FOR_EACH_VISION_CALCULATION)
+//		);
+//		limelightFilterer.setEstimatedPoseAtTimestampFunction(poseEstimator::getEstimatedPoseAtTimestamp);
+//
+//		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
+//		swerve.setStateHelper(new SwerveStateHelper(() -> Optional.of(poseEstimator.getEstimatedPose()), Optional::empty, swerve));
+//
 		this.superstructure = new Superstructure("Superstructure/", this);
 		this.statesMotionPlanner = new StatesMotionPlanner(superstructure);
 
-		configPathPlanner();
-		configureBindings();
+//		configPathPlanner();
+//		configureBindings();
 	}
 
 	public void periodic() {
-		swerve.updateStatus();
-		poseEstimator.updateVision(limelightFilterer.getFilteredVisionObservations());
-		poseEstimator.updateOdometry(Arrays.asList(swerve.getAllOdometryObservations()));
-		superstructure.logStatus();
+//		swerve.updateStatus();
+//		poseEstimator.updateVision(limelightFilterer.getFilteredVisionObservations());
+//		poseEstimator.updateOdometry(Arrays.asList(swerve.getAllOdometryObservations()));
+//		superstructure.logStatus();
 	}
 
 	private void configPathPlanner() {
@@ -143,7 +143,7 @@ public class Robot {
 //		PathPlannerUtils.registerCommand(RobotState.PRE_SPEAKER.name(), superstructure.setState(RobotState.PRE_SPEAKER));
 //		PathPlannerUtils.registerCommand(RobotState.SPEAKER.name(), superstructure.setState(RobotState.SPEAKER));
 
-		swerve.configPathPlanner(poseEstimator::getEstimatedPose, poseEstimator::resetPose);
+//		swerve.configPathPlanner(poseEstimator::getEstimatedPose, poseEstimator::resetPose);
 		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 	}
 
@@ -156,26 +156,26 @@ public class Robot {
 		return autonomousChooser.getChosenValue();
 	}
 
-	public GBPoseEstimator getPoseEstimator() {
-		return poseEstimator;
-	}
-
-	public Swerve getSwerve() {
-		return swerve;
-	}
-
-	public Solenoid getSolenoid() {
-		return solenoid;
-	}
-
-	public Funnel getFunnel() {
-		return funnel;
-	}
-
-	public Intake getIntake() {
-		return intake;
-	}
-
+//	public GBPoseEstimator getPoseEstimator() {
+//		return poseEstimator;
+//	}
+//
+//	public Swerve getSwerve() {
+//		return swerve;
+//	}
+//
+//	public Solenoid getSolenoid() {
+//		return solenoid;
+//	}
+//
+//	public Funnel getFunnel() {
+//		return funnel;
+//	}
+//
+//	public Intake getIntake() {
+//		return intake;
+//	}
+//
 	public Elbow getElbow() {
 		return elbow;
 	}
@@ -184,22 +184,22 @@ public class Robot {
 		return flywheel;
 	}
 
-	public Pivot getPivot() {
-		return pivot;
-	}
-
-	public Lifter getLifter() {
-		return lifter;
-	}
-
-	public Roller getRoller() {
-		return roller;
-	}
-
-	public Wrist getWrist() {
-		return wrist;
-	}
-
+//	public Pivot getPivot() {
+//		return pivot;
+//	}
+//
+//	public Lifter getLifter() {
+//		return lifter;
+//	}
+//
+//	public Roller getRoller() {
+//		return roller;
+//	}
+//
+//	public Wrist getWrist() {
+//		return wrist;
+//	}
+//
 	public Superstructure getSuperstructure() {
 		return superstructure;
 	}

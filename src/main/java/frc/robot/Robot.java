@@ -87,6 +87,8 @@ public class Robot {
 	public static final Mechanism2d mechanism2d = new Mechanism2d(20,20);
 
 	public Robot() {
+		SmartDashboard.putData("Mechanism2d", mechanism2d);
+
 //		this.swerve = new Swerve(
 //			SwerveConstantsFactory.create(SwerveType.SWERVE),
 //			ModulesFactory.create(SwerveType.SWERVE),

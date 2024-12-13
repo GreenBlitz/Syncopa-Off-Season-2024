@@ -69,7 +69,9 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
-		robot.getFlywheel().getCommandsBuilder().setVelocities(Rotation2d.fromRotations(10), Rotation2d.fromRotations(10));
+		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(10)).schedule();
+//		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(50)).schedule();
+//		robot.getElbow().getCommandsBuilder().setPower(() -> 1).schedule();
 	}
 
 	@Override

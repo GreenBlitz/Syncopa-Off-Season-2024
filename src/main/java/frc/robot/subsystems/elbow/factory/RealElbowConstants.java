@@ -92,19 +92,21 @@ public class RealElbowConstants {
 
 	private static TalonFXConfiguration generateConfiguration(){
 		TalonFXConfiguration configuration = new TalonFXConfiguration();
-		configuration.Slot0.kP = 1;
-		configuration.Slot0.kI = 1;
-		configuration.Slot0.kD = 1;
-		SoftwareLimitSwitchConfigs limitSwitchConfigs = new SoftwareLimitSwitchConfigs();
-		limitSwitchConfigs.withReverseSoftLimitThreshold(ElbowConstants.BACKWARD_LIMIT.getRotations());
-		limitSwitchConfigs.withForwardSoftLimitThreshold(ElbowConstants.FORWARD_LIMIT.getRotations());
-		limitSwitchConfigs.ForwardSoftLimitEnable = true;
-		limitSwitchConfigs.ReverseSoftLimitEnable = true;
-		configuration.withSoftwareLimitSwitch(limitSwitchConfigs);
-		configuration.CurrentLimits.StatorCurrentLimitEnable = true;
-		configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
-		configuration.CurrentLimits.StatorCurrentLimit = 40;
-		configuration.CurrentLimits.SupplyCurrentLimit = 40;
+		configuration.Slot0.withKP(100).withKS(10).withKG(10).withKA(10).withKV(10);
+//		configuration.Slot0.withKP(10000).withKI(0).withKD(0);
+//		configuration.Slot0.kP = 10;
+//		configuration.Slot0.kI = 0;
+//		configuration.Slot0.kD = 0;
+//		SoftwareLimitSwitchConfigs limitSwitchConfigs = new SoftwareLimitSwitchConfigs();
+//		limitSwitchConfigs.withReverseSoftLimitThreshold(ElbowConstants.BACKWARD_LIMIT.getRotations());
+//		limitSwitchConfigs.withForwardSoftLimitThreshold(ElbowConstants.FORWARD_LIMIT.getRotations());
+//		limitSwitchConfigs.ForwardSoftLimitEnable = true;
+//		limitSwitchConfigs.ReverseSoftLimitEnable = true;
+//		configuration.withSoftwareLimitSwitch(limitSwitchConfigs);
+//		configuration.CurrentLimits.StatorCurrentLimitEnable = true;
+//		configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
+//		configuration.CurrentLimits.StatorCurrentLimit = 40;
+//		configuration.CurrentLimits.SupplyCurrentLimit = 40;
 		return configuration;
 	}
 
@@ -113,9 +115,10 @@ public class RealElbowConstants {
 	}
 
 	protected static ElbowStuff generateSimulationElbowStuff(String logPath){
-		TalonFXWrapper wrapper = new TalonFXWrapper(0);
+		Phoenix6DeviceID deviceID = new Phoenix6DeviceID(IDs.CANSparkMAXs.ELBOW.id());
+		TalonFXWrapper wrapper = new TalonFXWrapper(deviceID);
 
-		Phoenix6AngleSignal positionSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(wrapper.getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.DEGREES);
+		Phoenix6AngleSignal positionSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(wrapper.getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder.generatePhoenix6Signal(wrapper.getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6DoubleSignal currentSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(wrapper.getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal voltageSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(wrapper.getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
@@ -139,16 +142,17 @@ public class RealElbowConstants {
 				ElbowConstants.GEAR_RATIO
 		);
 
-		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0));
-		Phoenix6Request<Double> voltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0));
+		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true));
+		Phoenix6Request<Double> voltageRequest = Phoenix6RequestBuilder.build(new VoltageOut(0).withEnableFOC(true));
 
 		TalonFXMotor motor = new TalonFXMotor(
 				logPath,
-				new Phoenix6DeviceID(0),
+				deviceID,
 				generateConfiguration(),
 				generateConfig(),
 				simulation
 		);
+
 		return new ElbowStuff(
 				logPath,
 				motor,

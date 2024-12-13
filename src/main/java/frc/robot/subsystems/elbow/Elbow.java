@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Robot;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.hardware.interfaces.IRequest;
@@ -29,8 +31,9 @@ public class Elbow extends GBSubsystem {
 		this.elbowStuff = elbowStuff;
 		this.commandsBuilder = new ElbowCommandsBuilder(this);
 
-		Robot.mechanism2d.getRoot("ELBOW", 10, 0);
-		this.elbowLigament2d = new MechanismLigament2d("elbowL", 4.4, elbowStuff.positionSignal().getLatestValue().getDegrees());
+
+		this.elbowLigament2d = new MechanismLigament2d("elbowL", 4.4, elbowStuff.positionSignal().getLatestValue().getDegrees(), 5, new Color8Bit(Color.kAquamarine));
+		Robot.mechanism2d.getRoot("ELBOW", 10, 5).append(elbowLigament2d);
 
 		motor.resetPosition(ElbowConstants.MINIMUM_ACHIEVABLE_POSITION);
 		updateInputs();

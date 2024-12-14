@@ -4,7 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.proto.Pose2dProto;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.hardware.phoenix6.BusChain;
@@ -38,7 +41,20 @@ public class RobotManager extends LoggedRobot {
 		BatteryUtils.scheduleLimiter();
 		this.roborioCycles = 0;
 
+		Robot.mechanism2d.getRoot("ELBOW_ROOT", 10, 0);
+		Logger.recordOutput("target", Rotation2d.fromDegrees(50));
+		Pose2d pose2d = new Pose2d(2, 2, new Rotation2d());
+		Pose2d pose2d1 = new Pose2d();
+		Logger.recordOutput("pose2d", pose2d);
+//		Robot.mechanism2d.getRoot("ROBOT", 2,2).append(robot.getElbow().);
+
+
 		this.robot = new Robot();
+	}
+
+	@Override
+	public void testInit() {
+		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(-30)).schedule();
 	}
 
 	@Override
@@ -62,6 +78,7 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.schedule();
 		}
+		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(-70)).schedule();
 	}
 
 	@Override
@@ -69,9 +86,10 @@ public class RobotManager extends LoggedRobot {
 		if (autonomousCommand != null) {
 			autonomousCommand.cancel();
 		}
-		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(10)).schedule();
-//		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(50)).schedule();
+//		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(10)).schedule();
+		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(60)).schedule();
 //		robot.getElbow().getCommandsBuilder().setPower(() -> 1).schedule();
+//		robot.getFlywheel().getCommandsBuilder().setVelocities(Rotation2d.fromRotations(10), Rotation2d.fromRotations(10)).schedule();
 	}
 
 	@Override

@@ -32,8 +32,11 @@ public class Elbow extends GBSubsystem {
 		this.commandsBuilder = new ElbowCommandsBuilder(this);
 
 
-		this.elbowLigament2d = new MechanismLigament2d("elbowL", 4.4, elbowStuff.positionSignal().getLatestValue().getDegrees(), 5, new Color8Bit(Color.kAquamarine));
-		Robot.mechanism2d.getRoot("ELBOW", 10, 5).append(elbowLigament2d);
+		this.elbowLigament2d = new MechanismLigament2d("elbowL", 0.44, elbowStuff.positionSignal().getLatestValue().getDegrees() + 90, 3, new Color8Bit(Color.kAquamarine));
+		Robot.mechanism2d.getRoot("ELBOW_ROOT", 0,0).append(
+				new MechanismLigament2d("mot", 0.5, 90, 2, new Color8Bit(Color.kBlack)))
+				.append(elbowLigament2d);
+//		Robot.mechanism2d.getRoot("ELBOW", 10,0.5).append(elbowLigament2d);
 
 		motor.resetPosition(ElbowConstants.MINIMUM_ACHIEVABLE_POSITION);
 		updateInputs();
@@ -54,7 +57,7 @@ public class Elbow extends GBSubsystem {
 	private void updateInputs() {
 		motor.updateInputs(elbowStuff.positionSignal(), elbowStuff.velocitySignal(), elbowStuff.currentSignal(), elbowStuff.voltageSignal());
 		motor.updateSimulation();
-		elbowLigament2d.setAngle(elbowStuff.positionSignal().getLatestValue().getDegrees());
+		elbowLigament2d.setAngle(elbowStuff.positionSignal().getLatestValue().getDegrees() - 90);
 	}
 
 	public void setBrake(boolean brake) {

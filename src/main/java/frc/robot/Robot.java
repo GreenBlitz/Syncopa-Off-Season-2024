@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
 import frc.robot.subsystems.funnel.factory.FunnelFactory;
@@ -159,7 +160,8 @@ public class Robot {
 
 
 	public Command getAutonomousCommand() {
-		return autonomousChooser.getChosenValue();
+//		return autonomousChooser.getChosenValue();
+		return new InstantCommand();
 	}
 
 //	public GBPoseEstimator getPoseEstimator() {

@@ -2,11 +2,15 @@ package frc.robot.subsystems.pivot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.hardware.interfaces.IRequest;
 import frc.robot.subsystems.GBSubsystem;
 import frc.utils.DriverStationUtils;
+
+import static edu.wpi.first.hal.simulation.AnalogGyroDataJNI.getAngle;
 
 public class Pivot extends GBSubsystem {
 
@@ -80,6 +84,13 @@ public class Pivot extends GBSubsystem {
 	public boolean isAtPosition(Rotation2d targetPosition, Rotation2d angleTolerance) {
 		return MathUtil
 			.isNear(targetPosition.getRotations(), pivotStuff.positionSignal().getLatestValue().getRotations(), angleTolerance.getRotations());
+	}
+
+	public Pose3d getSimulationPivotPosition3d() {
+		return new Pose3d(
+				PivotConstants.ROBOT_RELATIVE_PIVOT_POSITION,
+				new Rotation3d(0, -pivotStuff.positionSignal().getLatestValue().getRadians(), 0)
+		);
 	}
 
 }

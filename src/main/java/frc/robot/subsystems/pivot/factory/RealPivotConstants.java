@@ -60,6 +60,26 @@ public class RealPivotConstants {
 		return configuration;
 	}
 
+	private static TalonFXConfiguration generateSimMotorConfig() {
+		TalonFXConfiguration configuration = new TalonFXConfiguration();
+
+		configuration.Slot0.withKP(1).withKI(0).withKD(0);
+		configuration.Feedback.SensorToMechanismRatio = PivotConstants.GEAR_RATIO;
+
+		configuration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+		configuration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = PivotConstants.FORWARD_ANGLE_LIMIT.getRotations();
+		configuration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+		configuration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = PivotConstants.BACKWARD_ANGLE_LIMIT.getRotations();
+
+		configuration.CurrentLimits.StatorCurrentLimitEnable = true;
+		configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
+		configuration.CurrentLimits.StatorCurrentLimit = 40;
+		configuration.CurrentLimits.SupplyCurrentLimit = 40;
+		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+		return configuration;
+	}
+
 	protected static PivotStuff generatePivotStuff(String logPath) {
 		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true));
 
@@ -103,7 +123,7 @@ public class RealPivotConstants {
 		TalonFXMotor pivot = new TalonFXMotor(
 				logPath,
 				IDs.TalonFXIDs.PIVOT,
-				generateMotorConfig(),
+				generateSimMotorConfig(),
 				generateSysidConfig(),
 				pivotSimulation
 		);

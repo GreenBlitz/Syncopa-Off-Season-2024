@@ -102,6 +102,9 @@ public class RealFlywheelConstants {
 			.generatePhoenix6Signal(leftFlywheel.getMotor().getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal leftVoltageSignal = Phoenix6SignalBuilder
 			.generatePhoenix6Signal(leftFlywheel.getMotor().getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+		Phoenix6AngleSignal Rposition = Phoenix6SignalBuilder.generatePhoenix6Signal(rightFlywheel.getMotor().getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+		Phoenix6AngleSignal Lposition = Phoenix6SignalBuilder.generatePhoenix6Signal(leftFlywheel.getMotor().getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+
 
 		return new FlywheelStuff(
 			logPath,
@@ -114,7 +117,9 @@ public class RealFlywheelConstants {
 			rightVelocitySignal,
 			leftVelocitySignal,
 			new InputSignal[] {rightCurrentSignal, rightVoltageSignal},
-			new InputSignal[] {leftCurrentSignal, leftVoltageSignal}
+			new InputSignal[] {leftCurrentSignal, leftVoltageSignal},
+			Rposition,
+			Lposition
 		);
 	}
 
@@ -186,6 +191,9 @@ public class RealFlywheelConstants {
 				.generatePhoenix6Signal(leftFlywheel.getMotor().getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal leftVoltageSignal = Phoenix6SignalBuilder
 				.generatePhoenix6Signal(leftFlywheel.getMotor().getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+		Phoenix6AngleSignal Rposition = Phoenix6SignalBuilder.generatePhoenix6Signal(rightFlywheel.getMotor().getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+		Phoenix6AngleSignal Lposition = Phoenix6SignalBuilder.generatePhoenix6Signal(leftFlywheel.getMotor().getPosition(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+
 
 		return new FlywheelStuff(
 				logPath,
@@ -198,7 +206,9 @@ public class RealFlywheelConstants {
 				rightVelocitySignal,
 				leftVelocitySignal,
 				new InputSignal[] {rightCurrentSignal, rightVoltageSignal},
-				new InputSignal[] {leftCurrentSignal, leftVoltageSignal}
+				new InputSignal[] {leftCurrentSignal, leftVoltageSignal},
+				Rposition,
+				Lposition
 		);
 	}
 

@@ -11,6 +11,7 @@ public class ElbowConstants {
 	public static final Rotation2d BACKWARD_LIMIT = Rotation2d.fromDegrees(-78);
 
 	public static final double GEAR_RATIO = 1.0 / (28.0 * (60.0 / 16.0));
+	public static final double SIMULATION_GEAR_RATIO = 28.0 * (60.0 / 16.0);
 
 	protected static final Rotation2d MINIMUM_ACHIEVABLE_POSITION = Rotation2d.fromDegrees(-82);
 

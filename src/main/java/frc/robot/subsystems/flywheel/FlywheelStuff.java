@@ -16,5 +16,7 @@ public record FlywheelStuff(
 	InputSignal<Rotation2d> rightVelocitySignal,
 	InputSignal<Rotation2d> leftVelocitySignal,
 	InputSignal[] rightSignals,
-	InputSignal[] leftSignals
+	InputSignal[] leftSignals,
+	InputSignal<Rotation2d> rightPosition,
+	InputSignal<Rotation2d> leftPosition
 ) {}

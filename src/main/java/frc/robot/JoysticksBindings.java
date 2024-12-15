@@ -85,13 +85,12 @@ public class JoysticksBindings {
 		/*
 		PIVOT SIM BINDINGS
 		 */
-		PivotStateHandler stateHandler = new PivotStateHandler(robot.getPivot(), Optional.empty());
-		usedJoystick.A.onTrue(stateHandler.setState(PivotState.IDLE));
-		usedJoystick.B.onTrue(stateHandler.setState(PivotState.PRE_SPEAKER));
-		usedJoystick.Y.onTrue(stateHandler.setState(PivotState.INTAKE));
-		usedJoystick.X.onTrue(stateHandler.setState(PivotState.PASSING));
-		usedJoystick.POV_DOWN.onTrue(stateHandler.setState(PivotState.ARM_INTAKE));
-		usedJoystick.POV_UP.onTrue(stateHandler.setState(PivotState.TRANSFER));
+		usedJoystick.A.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.IDLE.getTargetPosition()));
+		usedJoystick.B.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.PRE_SPEAKER.getTargetPosition()));
+		usedJoystick.Y.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.INTAKE.getTargetPosition()));
+		usedJoystick.X.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.PASSING.getTargetPosition()));
+		usedJoystick.POV_DOWN.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.ARM_INTAKE.getTargetPosition()));
+		usedJoystick.POV_UP.onTrue(robot.getPivot().getCommandsBuilder().moveToPosition(PivotState.TRANSFER.getTargetPosition()));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

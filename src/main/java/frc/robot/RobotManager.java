@@ -40,11 +40,11 @@ public class RobotManager extends LoggedRobot {
 		BatteryUtils.scheduleLimiter();
 		this.roborioCycles = 0;
 
-		Robot.mechanism2d.getRoot("ELBOW_ROOT", 10, 0);
-		Logger.recordOutput("target", Rotation2d.fromDegrees(50));
-		Pose2d pose2d = new Pose2d(2, 2, new Rotation2d());
-		Pose2d pose2d1 = new Pose2d();
-		Translation2d translation2d = new Translation2d();
+//		Robot.mechanism2d.getRoot("ELBOW_ROOT", 10, 0);
+//		Logger.recordOutput("target", Rotation2d.fromDegrees(50));
+//		Pose2d pose2d = new Pose2d(2, 2, new Rotation2d());
+//		Pose2d pose2d1 = new Pose2d();
+//		Translation2d translation2d = new Translation2d();
 //		Robot.mechanism2d.getRoot("ROBOT", 2,2).append(robot.getElbow().);
 
 
@@ -88,7 +88,7 @@ public class RobotManager extends LoggedRobot {
 //		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(10)).schedule();
 //		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(60)).schedule();
 //		robot.getElbow().getCommandsBuilder().setPower(() -> 1).schedule();
-		robot.getPivot().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(50)).schedule();
+//		robot.getPivot().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(50)).schedule();
 //		robot.getFlywheel().getCommandsBuilder().setVelocities(Rotation2d.fromRotations(10), Rotation2d.fromRotations(10)).schedule();
 	}
 

@@ -77,7 +77,7 @@ public class Robot {
 //	private final Intake intake;
 	private final Elbow elbow;
 	private final Flywheel flywheel;
-//	private final Pivot pivot;
+	private final Pivot pivot;
 //	private final Lifter lifter;
 //	private final Roller roller;
 //	private final Wrist wrist;
@@ -98,8 +98,8 @@ public class Robot {
 //		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
 //		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
 		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
-//		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
-//		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
+		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
+		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
 		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
 		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
 //		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
@@ -192,9 +192,9 @@ public class Robot {
 		return flywheel;
 	}
 
-//	public Pivot getPivot() {
-//		return pivot;
-//	}
+	public Pivot getPivot() {
+		return pivot;
+	}
 //
 //	public Lifter getLifter() {
 //		return lifter;

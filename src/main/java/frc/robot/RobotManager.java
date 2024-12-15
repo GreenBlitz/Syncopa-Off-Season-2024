@@ -4,8 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.geometry.proto.Pose2dProto;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -45,7 +44,7 @@ public class RobotManager extends LoggedRobot {
 		Logger.recordOutput("target", Rotation2d.fromDegrees(50));
 		Pose2d pose2d = new Pose2d(2, 2, new Rotation2d());
 		Pose2d pose2d1 = new Pose2d();
-		Logger.recordOutput("pose2d", pose2d);
+		Translation2d translation2d = new Translation2d();
 //		Robot.mechanism2d.getRoot("ROBOT", 2,2).append(robot.getElbow().);
 
 
@@ -99,6 +98,8 @@ public class RobotManager extends LoggedRobot {
 		BatteryUtils.logStatus();
 		BusChain.logChainsStatuses();
 		AlertManager.reportAlerts();
+
+		Logger.recordOutput("PivotPose", robot.getPivot().getSimulationPivotPosition3d());
 	}
 
 	private void updateTimeRelatedData() {

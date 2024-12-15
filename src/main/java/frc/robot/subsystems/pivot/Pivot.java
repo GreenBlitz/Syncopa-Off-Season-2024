@@ -9,6 +9,7 @@ import frc.robot.hardware.interfaces.ControllableMotor;
 import frc.robot.hardware.interfaces.IRequest;
 import frc.robot.subsystems.GBSubsystem;
 import frc.utils.DriverStationUtils;
+import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.hal.simulation.AnalogGyroDataJNI.getAngle;
 
@@ -47,6 +48,7 @@ public class Pivot extends GBSubsystem {
 		motor.updateInputs(pivotStuff.positionSignal());
 		motor.updateInputs(pivotStuff.inputSignals());
 		motor.updateSimulation();
+		Logger.recordOutput("PivotPose3d", getSimulationPivotPosition3d());
 	}
 
 	@Override

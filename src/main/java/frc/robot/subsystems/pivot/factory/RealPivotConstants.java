@@ -60,26 +60,6 @@ public class RealPivotConstants {
 		return configuration;
 	}
 
-	private static TalonFXConfiguration generateSimMotorConfig() {
-		TalonFXConfiguration configuration = new TalonFXConfiguration();
-
-		configuration.Slot0.withKP(1).withKI(0).withKD(0);
-		configuration.Feedback.SensorToMechanismRatio = PivotConstants.GEAR_RATIO;
-
-		configuration.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-		configuration.SoftwareLimitSwitch.ForwardSoftLimitThreshold = PivotConstants.FORWARD_ANGLE_LIMIT.getRotations();
-		configuration.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
-		configuration.SoftwareLimitSwitch.ReverseSoftLimitThreshold = PivotConstants.BACKWARD_ANGLE_LIMIT.getRotations();
-
-		configuration.CurrentLimits.StatorCurrentLimitEnable = true;
-		configuration.CurrentLimits.SupplyCurrentLimitEnable = true;
-		configuration.CurrentLimits.StatorCurrentLimit = 40;
-		configuration.CurrentLimits.SupplyCurrentLimit = 40;
-		configuration.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-
-		return configuration;
-	}
-
 	protected static PivotStuff generatePivotStuff(String logPath) {
 		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true));
 
@@ -100,48 +80,4 @@ public class RealPivotConstants {
 
 		return new PivotStuff(logPath, pivot, positionRequest, positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}
-
-	protected static PivotStuff generateSimulationPivotStuff(String logPath) {
-		Phoenix6Request<Rotation2d> positionRequest = Phoenix6RequestBuilder.build(new PositionVoltage(0).withEnableFOC(true));
-
-		SingleJointedArmSim pivotSim = new SingleJointedArmSim(
-				DCMotor.getFalcon500Foc(1),
-				PivotConstants.GEAR_RATIO,
-				SingleJointedArmSim.estimateMOI(
-						0.418,
-						3
-				),
-				0.418,
-				PivotConstants.BACKWARD_ANGLE_LIMIT.getRadians(),
-				PivotConstants.FORWARD_ANGLE_LIMIT.getRadians(),
-				false,
-				Rotation2d.fromDegrees(16).getRadians()
-		);
-
-		SingleJointedArmSimulation pivotSimulation = new SingleJointedArmSimulation(pivotSim, PivotConstants.GEAR_RATIO);
-
-		TalonFXMotor pivot = new TalonFXMotor(
-				logPath,
-				IDs.TalonFXIDs.PIVOT,
-				generateSimMotorConfig(),
-				generateSysidConfig(),
-				pivotSimulation
-		);
-
-		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(pivot.getMotor().getVelocity(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
-		Phoenix6LatencySignal positionSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(
-				pivot.getMotor().getPosition(),
-				velocitySignal,
-				GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
-				AngleUnit.ROTATIONS
-		);
-		Phoenix6DoubleSignal currentSignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(pivot.getMotor().getStatorCurrent(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
-		Phoenix6DoubleSignal voltageSignal = Phoenix6SignalBuilder
-				.generatePhoenix6Signal(pivot.getMotor().getMotorVoltage(), GlobalConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
-
-		return new PivotStuff(logPath, pivot, positionRequest, positionSignal, velocitySignal, currentSignal, voltageSignal);
-	}
-
 }

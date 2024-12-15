@@ -2,10 +2,14 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import frc.robot.subsystems.pivot.PivotState;
+import frc.robot.subsystems.pivot.PivotStateHandler;
 import frc.robot.superstructure.RobotState;
 import frc.utils.joysticks.Axis;
 import frc.utils.joysticks.JoystickPorts;
 import frc.utils.joysticks.SmartJoystick;
+
+import java.util.Optional;
 
 public class JoysticksBindings {
 
@@ -68,15 +72,26 @@ public class JoysticksBindings {
 //		}));
 
 
-		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE));
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.SPEAKER));
+//		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE));
+//		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.SPEAKER));
+//
+//		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.ARM_INTAKE));
+//		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.AMP));
+//
+//		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.PASSING));
+//		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE_OUTTAKE));
+//		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
 
-		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.ARM_INTAKE));
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getSuperstructure().setState(RobotState.AMP));
-
-		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.PASSING));
-		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE_OUTTAKE));
-		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.IDLE));
+		/*
+		PIVOT SIM BINDINGS
+		 */
+		PivotStateHandler stateHandler = new PivotStateHandler(robot.getPivot(), Optional.empty());
+		usedJoystick.A.onTrue(stateHandler.setState(PivotState.IDLE));
+		usedJoystick.B.onTrue(stateHandler.setState(PivotState.PRE_SPEAKER));
+		usedJoystick.Y.onTrue(stateHandler.setState(PivotState.INTAKE));
+		usedJoystick.X.onTrue(stateHandler.setState(PivotState.PASSING));
+		usedJoystick.POV_DOWN.onTrue(stateHandler.setState(PivotState.ARM_INTAKE));
+		usedJoystick.POV_UP.onTrue(stateHandler.setState(PivotState.TRANSFER));
 	}
 
 	private static void secondJoystickButtons(Robot robot) {

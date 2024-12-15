@@ -86,8 +86,9 @@ public class RobotManager extends LoggedRobot {
 			autonomousCommand.cancel();
 		}
 //		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(10)).schedule();
-		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(60)).schedule();
+//		robot.getElbow().getCommandsBuilder().moveToAngle(Rotation2d.fromDegrees(60)).schedule();
 //		robot.getElbow().getCommandsBuilder().setPower(() -> 1).schedule();
+		robot.getPivot().getCommandsBuilder().moveToPosition(Rotation2d.fromDegrees(50)).schedule();
 //		robot.getFlywheel().getCommandsBuilder().setVelocities(Rotation2d.fromRotations(10), Rotation2d.fromRotations(10)).schedule();
 	}
 

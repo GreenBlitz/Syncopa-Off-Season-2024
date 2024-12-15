@@ -8,7 +8,7 @@ public class PivotFactory {
 	public static PivotStuff create(String logPath) {
 		return switch (Robot.ROBOT_TYPE) {
 			case REAL -> RealPivotConstants.generatePivotStuff(logPath);
-			case SIMULATION -> RealPivotConstants.generateSimulationPivotStuff(logPath);
+			case SIMULATION -> SimulationPivotConstants.generateSimulationPivotStuff(logPath);
 		};
 	}
 

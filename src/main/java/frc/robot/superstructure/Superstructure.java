@@ -30,6 +30,7 @@ import frc.robot.subsystems.wrist.WristStateHandler;
 import frc.utils.math.PoseMath;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Optional;
 import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
@@ -68,11 +69,11 @@ public class Superstructure extends GBSubsystem {
 		this.flywheelStateHandler = new FlywheelStateHandler(robot.getFlywheel());
 		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
 		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
-		this.pivotStateHandler = null;// new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator()
-		// .getEstimatedPose()));
+		this.pivotStateHandler =
+				new PivotStateHandler(robot.getPivot(),
+						Optional.of(() -> robot.getPoseEstimator().getCurrentPose()));
 		this.rollerStateHandler = new RollerStateHandler(robot.getRoller());
 		this.wristStateHandler = new WristStateHandler(robot.getWrist());
-//		this.mainJoystick = JoysticksBindings.getMainJoystick();
 
 		this.currentState = RobotState.IDLE;
 		this.endBehaviorManager = new EndBehaviorManager(this);
@@ -326,7 +327,7 @@ public class Superstructure extends GBSubsystem {
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP)
-				).until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND)),
+				),//.until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND)),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
@@ -337,7 +338,7 @@ public class Superstructure extends GBSubsystem {
 					intakeStateHandler.setState(IntakeState.STOP)
 				)
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP), joystick),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
 			rollerStateHandler.setState(RollerState.STOP),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
@@ -351,7 +352,7 @@ public class Superstructure extends GBSubsystem {
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					rollerStateHandler.setState(RollerState.STOP)
-				).until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND)),
+				).withTimeout(0.1),//.until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND)),
 				new ParallelCommandGroup(
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
@@ -363,7 +364,7 @@ public class Superstructure extends GBSubsystem {
 					rollerStateHandler.setState(RollerState.ROLL_OUT)
 				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP), joystick),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)

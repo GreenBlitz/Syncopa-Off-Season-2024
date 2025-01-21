@@ -12,6 +12,7 @@ import frc.robot.subsystems.swerve.states.DriveRelative;
 import frc.robot.subsystems.swerve.states.RotateAxis;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
+import frc.robot.superstructure.RobotState;
 import frc.robot.superstructure.Tolerances;
 
 public class JoysticksBindings {
@@ -150,6 +151,13 @@ public class JoysticksBindings {
 	private static void thirdJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
+		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE, usedJoystick));
+		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.ARM_INTAKE, usedJoystick));
+		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER, usedJoystick));
+		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM, usedJoystick));
+		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.AMP, usedJoystick));
+		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP, usedJoystick));
+	
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {

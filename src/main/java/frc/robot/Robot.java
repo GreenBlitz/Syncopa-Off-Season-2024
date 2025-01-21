@@ -127,12 +127,12 @@ public class Robot {
 //		PathPlannerUtils.registerCommand(RobotState.PRE_SPEAKER.name(), superstructure.setState(RobotState.PRE_SPEAKER));
 //		PathPlannerUtils.registerCommand(RobotState.SPEAKER.name(), superstructure.setState(RobotState.SPEAKER));
 
-		swerve.configPathPlanner(
-			poseEstimator::getCurrentPose,
-			poseEstimator::resetPose,
-			PathPlannerUtils.getGuiRobotConfig().orElse(AutonomousConstants.SYNCOPA_ROBOT_CONFIG)
-		);
-		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
+//		swerve.configPathPlanner(
+//			poseEstimator::getCurrentPose,
+//			poseEstimator::resetPose,
+//			PathPlannerUtils.getGuiRobotConfig().orElse(AutonomousConstants.SYNCOPA_ROBOT_CONFIG)
+//		);
+//		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 	}
 
 

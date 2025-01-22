@@ -17,4 +17,9 @@ public class StatesMotionPlanner {
 			.andThen(superstructure.setState(RobotState.AMP, joystick));
 	}
 
+	public Command feederIntakeToArm(SmartJoystick joystick) {
+		return superstructure.setState(RobotState.FEEDER_INTAKE, joystick)
+				.andThen(superstructure.setState(RobotState.TRANSFER_SHOOTER_TO_ARM, joystick));
+	}
+
 }

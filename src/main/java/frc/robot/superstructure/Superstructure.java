@@ -276,7 +276,13 @@ public class Superstructure extends GBSubsystem {
 					funnelStateHandler.setState(FunnelState.OUTTAKE),
 					intakeStateHandler.setState(IntakeState.OUTTAKE),
 					flywheelStateHandler.setState(FlywheelState.FEEDER)
-				)
+				).until(() -> !isObjectInFunnel()),
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(this::isObjectInFunnel)
 			),
 			rollerStateHandler.setState(RollerState.STOP),
 			wristStateHandler.setState(WristState.DEFAULT),

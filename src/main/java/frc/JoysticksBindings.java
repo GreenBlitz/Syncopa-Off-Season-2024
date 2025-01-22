@@ -157,7 +157,8 @@ public class JoysticksBindings {
 		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM, usedJoystick));
 		usedJoystick.R1.onTrue(robot.getSuperstructure().setState(RobotState.AMP, usedJoystick));
 		usedJoystick.L1.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP, usedJoystick));
-	
+		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm(usedJoystick));
+
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {

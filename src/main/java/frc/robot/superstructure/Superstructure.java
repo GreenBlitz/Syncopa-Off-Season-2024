@@ -184,6 +184,7 @@ public class Superstructure extends GBSubsystem {
 			case IDLE -> idle(joystick);
 			case INTAKE -> intake(joystick);
 			case INTAKE_WITH_FLYWHEEL -> intakeWithFlywheel(joystick);
+			case FEEDER_INTAKE -> feederIntake(joystick);
 			case ARM_INTAKE -> armIntake(joystick);
 			case PRE_SPEAKER -> preSpeaker(joystick);
 			case SPEAKER -> speaker(joystick);
@@ -255,6 +256,32 @@ public class Superstructure extends GBSubsystem {
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE), joystick)
+		);
+	}
+
+	private Command feederIntake(SmartJoystick joystick) {
+		return new ParallelDeadlineGroup(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(() -> robot.getPivot().isAtPosition(
+					PivotState.FEEDER.getTargetPosition(),
+					Tolerances.PIVOT_POSITION
+				)),
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.OUTTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				)
+			),
+			rollerStateHandler.setState(RollerState.STOP),
+			wristStateHandler.setState(WristState.DEFAULT),
+			elbowStateHandler.setState(ElbowState.IDLE),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 

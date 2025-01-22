@@ -7,6 +7,7 @@ public enum PivotState {
 	IDLE(Rotation2d.fromDegrees(40)),
 	INTAKE(Rotation2d.fromDegrees(35)),
 	ARM_INTAKE(Rotation2d.fromDegrees(30)),
+	FEEDER(Rotation2d.fromDegrees(60)),
 	PRE_SPEAKER(Rotation2d.fromDegrees(60)),
 	INTERPOLATE(new Rotation2d()),
 	MANUAL(new Rotation2d()),

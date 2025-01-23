@@ -97,7 +97,6 @@ public class Robot {
 
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
-		ROBOT_TYPE = RobotType.REAL;
 		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/");
 		this.swerve = new Swerve(
 			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
@@ -129,9 +128,9 @@ public class Robot {
 		);
 
 //		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
-		swerve.setHeadingSupplier(() -> headingEstimator.getEstimatedHeading().plus(Rotation2d.fromDegrees(150)));
+		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
-		swerve.getStateHandler().setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
+		swerve.getStateHandler().setReedTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
 		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.branchCool(CodeCode.reefSide, CodeCode.leftBrnach)));
 		swerve.getStateHandler()
 			.setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfCoralStation(CodeCode.coralStationPosition).getTranslation()));
@@ -144,7 +143,6 @@ public class Robot {
 			() -> Rotation2d.fromDegrees(0),
 			VisionConstants.DEFAULT_VISION_POSEESTIMATING_SOURCES
 		);
-		ROBOT_TYPE = RobotType.SIMULATION;
 		this.superstructureFunny = new Superstructure(swerve, poseEstimator);
 		this.superstructureRobot = new frc.robot.superstructure.Superstructure("Superstructure/", this);
 		this.statesMotionPlanner = new StatesMotionPlanner(superstructureRobot);
@@ -154,7 +152,21 @@ public class Robot {
 
 	public void periodic() {
 		swerve.update();
+		headingEstimator.updateGyroAngle(new HeadingData(swerve.getGyroAbsoluteYaw(), TimeUtils.getCurrentTimeSeconds()));
+		List<TimedValue<Rotation2d>> headingAndTime = aprilTagVisionSources.getRawRobotHeadings();
+		if (!headingAndTime.isEmpty()) {
+			Logger.recordOutput("Robot Heading", headingAndTime.get(0).value());
+			headingEstimator.updateVisionIfNotCalibrated(
+					new HeadingData(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp()),
+					RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+					0.001
+			);
+//			headingEstimator.updateVisionHeading(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp());
+//			headingEstimator.updateVisionHeading(headingAndTime.get(0).getFirst(), TimeUtils.getCurrentTimeSeconds());
+		}
 		poseEstimator.updateOdometry(swerve.getAllOdometryObservations());
+		poseEstimator.updateVision(aprilTagVisionSources.getUnfilteredVisionData());
+
 		superstructureFunny.periodic();
 		superstructureRobot.periodic();
 		BatteryUtils.logStatus();
@@ -176,19 +188,6 @@ public class Robot {
 //		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
 		superstructureRobot.periodic();
 		aprilTagVisionSources.log();
-		headingEstimator.updateGyroAngle(new HeadingData(swerve.getGyroAbsoluteYaw(), TimeUtils.getCurrentTimeSeconds()));
-		List<TimedValue<Rotation2d>> headingAndTime = aprilTagVisionSources.getRawRobotHeadings();
-		if (!headingAndTime.isEmpty()) {
-			Logger.recordOutput("Robot Heading", headingAndTime.get(0).value());
-			headingEstimator.updateVisionIfNotCalibrated(
-				new HeadingData(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp()),
-				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-				0.001
-			);
-//			headingEstimator.updateVisionHeading(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp());
-//			headingEstimator.updateVisionHeading(headingAndTime.get(0).getFirst(), TimeUtils.getCurrentTimeSeconds());
-		}
-		headingEstimator.periodic();
 		Logger.recordOutput("Robot Heading By Estimator", new Pose2d(new Translation2d(0, 0), headingEstimator.getEstimatedHeading()));
 		CommandScheduler.getInstance().run(); // Should be last
 	}

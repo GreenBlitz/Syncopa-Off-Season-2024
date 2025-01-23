@@ -7,6 +7,6 @@ public class CodeCode {
 
 	public static ReefSide reefSide = ReefSide.A;
 	public static boolean leftBrnach = true;
-	public static CoralStationPosition coralStationPosition = CoralStationPosition.RIGHT;
+	public static CoralStationPosition coralStationPosition = CoralStationPosition.LEFT;
 
 }

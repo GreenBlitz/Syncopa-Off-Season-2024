@@ -4,6 +4,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
+import frc.JoysticksBindings;
 import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
@@ -73,6 +74,8 @@ public class Superstructure extends GBSubsystem {
 
 		this.currentState = RobotState.IDLE;
 		this.endBehaviorManager = new EndBehaviorManager(this);
+
+		setDefaultCommand(JoysticksBindings.FOURTH_JOYSTICK);
 	}
 
 	public void setDefaultCommand(SmartJoystick joystick) {
@@ -213,7 +216,7 @@ public class Superstructure extends GBSubsystem {
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
-					wristStateHandler.setState(WristState.PRE_TRAP)
+					wristStateHandler.setState(WristState.IN_ARM)
 				)
 			),
 			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH), joystick),
@@ -296,12 +299,12 @@ public class Superstructure extends GBSubsystem {
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
-					wristStateHandler.setState(WristState.PRE_TRAP)
+					wristStateHandler.setState(WristState.IN_ARM)
 				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),
-					rollerStateHandler.setState(RollerState.FAST_ROLL_IN)
+					rollerStateHandler.setState(RollerState.ROLL_OUT)
 				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
 			),
 			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),

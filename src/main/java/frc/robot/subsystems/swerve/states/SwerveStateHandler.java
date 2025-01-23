@@ -5,11 +5,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.MathConstants;
+import frc.constants.field.Field;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssistMath;
+import frc.utils.math.AngleTransform;
+import frc.utils.math.FieldMath;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -87,12 +90,13 @@ public class SwerveStateHandler {
 
 	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		return AimAssistMath
-			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, reefTranslationSupplier.get().get().getAngle(), swerveConstants);
+			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading,
+					FieldMath.mirrorAngle(FieldMath.getRelativeTranslation(Field.getMiddleOfReef() , reefTranslationSupplier.get().get()).getAngle(), AngleTransform.KEEP), swerveConstants);
 	}
 
 	private ChassisSpeeds handleFeederAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		return AimAssistMath
-			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, feederTranslationSupplier.get().get().getAngle(), swerveConstants);
+			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, Rotation2d.fromDegrees(120), swerveConstants);
 	}
 
 	private ChassisSpeeds handleBranchAimAssist(

@@ -5,7 +5,7 @@ import frc.robot.hardware.interfaces.IAngleEncoder;
 import frc.robot.hardware.signal.AngleSignal;
 import frc.robot.hardware.signal.TimedValue;
 import frc.robot.subsystems.swerve.module.records.EncoderSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.time.TimeUtils;
 
 public class SimulationEncoderConstants {

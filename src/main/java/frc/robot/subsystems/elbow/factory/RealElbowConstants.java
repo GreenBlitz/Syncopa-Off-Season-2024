@@ -19,7 +19,7 @@ import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;
 import frc.robot.hardware.signal.supplied.SuppliedDoubleSignal;
 import frc.robot.subsystems.elbow.ElbowConstants;
 import frc.robot.subsystems.elbow.ElbowStuff;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 
 import java.util.function.Function;
 

@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.CodeCode;
+import frc.constants.field.Field;
 import frc.robot.poseestimator.IPoseEstimator;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
@@ -129,7 +131,10 @@ public class Robot {
 //		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.setHeadingSupplier(() -> headingEstimator.getEstimatedHeading().plus(Rotation2d.fromDegrees(150)));
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
-		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of());
+		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
+		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.getCoralPlacement(CodeCode.reefBranch)));
+		swerve.getStateHandler()
+			.setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfCoralStation(CodeCode.coralStationPosition).getTranslation()));
 
 		headingEstimator = new RobotHeadingEstimator(swerve.getGyroAbsoluteYaw(), swerve.getGyroAbsoluteYaw(), 0.0001);
 

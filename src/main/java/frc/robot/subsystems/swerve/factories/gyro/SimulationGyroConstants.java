@@ -5,7 +5,7 @@ import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.signal.AngleSignal;
 import frc.robot.hardware.signal.TimedValue;
 import frc.robot.subsystems.swerve.GyroSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.time.TimeUtils;
 
 public class SimulationGyroConstants {

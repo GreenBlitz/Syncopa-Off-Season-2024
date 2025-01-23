@@ -8,7 +8,7 @@ import frc.robot.hardware.phoenix6.gyro.Pigeon2Gyro;
 import frc.robot.hardware.phoenix6.gyro.Pigeon2Wrapper;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.swerve.GyroSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.alerts.Alert;
 
 class RealGyroConstants {

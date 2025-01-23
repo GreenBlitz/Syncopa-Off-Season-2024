@@ -4,7 +4,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
-import frc.constants.field.Field;
 import frc.joysticks.Axis;
 import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
@@ -24,9 +23,9 @@ import frc.robot.subsystems.roller.RollerState;
 import frc.robot.subsystems.roller.RollerStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.states.SwerveState;
+import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.subsystems.wrist.WristState;
 import frc.robot.subsystems.wrist.WristStateHandler;
-import frc.utils.math.PoseMath;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -136,7 +135,7 @@ public class Superstructure extends GBSubsystem {
 	private boolean isReadyToShootInterpolation() {
 		Translation2d robotTranslation2d = null;// robot.getPoseEstimator().getEstimatedPose().getTranslation();
 
-		double metersFromSpeaker = Field.getSpeaker().toTranslation2d().getDistance(robotTranslation2d);
+		double metersFromSpeaker = 0;// Field.getSpeaker().toTranslation2d().getDistance(robotTranslation2d);
 		boolean isPivotReady = robot.getPivot()
 			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
 
@@ -147,7 +146,8 @@ public class Superstructure extends GBSubsystem {
 				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
 			);
 
-		Rotation2d angleToSpeaker = PoseMath.getRelativeTranslation(robotTranslation2d, Field.getSpeaker().toTranslation2d()).getAngle();
+		Rotation2d angleToSpeaker = new Rotation2d();// PoseMath.getRelativeTranslation(robotTranslation2d,
+														// Field.getSpeaker().toTranslation2d()).getAngle();
 		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker, Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND);
 
 		return isFlywheelReady && isPivotReady && isSwerveReady;
@@ -194,7 +194,80 @@ public class Superstructure extends GBSubsystem {
 			case INTAKE_OUTTAKE -> intakeOuttake(joystick);
 			case ARM_OUTTAKE -> armOuttake(joystick);
 			case PASSING -> passing(joystick);
+			case FEED -> feed(joystick);
+			case ALIGN_REEF -> alignReef(joystick);
+			case PRE_SCORE_REEF -> preReef(joystick);
 		}, state);
+	}
+
+	private Command preReef(SmartJoystick joystick) {
+		return new ParallelCommandGroup(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.STOP),
+					wristStateHandler.setState(WristState.IN_ARM),
+					rollerStateHandler.setState(RollerState.STOP)
+				).withTimeout(0.1), // .until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING,
+									// Tolerances.ROTATION_VELOCITY_DEADBAND)),
+				new ParallelCommandGroup(
+					elbowStateHandler.setState(ElbowState.PRE_AMP),
+					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
+					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
+					wristStateHandler.setState(WristState.PRE_TRAP)
+				)
+			),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH), joystick), // todo
+			pivotStateHandler.setState(PivotState.IDLE),
+			flywheelStateHandler.setState(FlywheelState.DEFAULT)
+		);
+	}
+
+	private Command alignReef(SmartJoystick joystick) {
+		return new ParallelCommandGroup(
+			rollerStateHandler.setState(RollerState.MANUAL),
+			intakeStateHandler.setState(IntakeState.STOP),
+			funnelStateHandler.setState(FunnelState.MANUAL),
+			pivotStateHandler.setState(PivotState.IDLE),
+			flywheelStateHandler.setState(FlywheelState.DEFAULT),
+			elbowStateHandler.setState(ElbowState.IDLE),
+			wristStateHandler.setState(WristState.DEFAULT),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick) // todo
+		);
+	}
+
+	private Command feed(SmartJoystick joystick) {
+		return new ParallelDeadlineGroup(
+			new SequentialCommandGroup(
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(() -> robot.getPivot().isAtPosition(PivotState.FEEDER.getTargetPosition(), Tolerances.PIVOT_POSITION)),
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.OUTTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(this::isObjectInFunnel),
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.OUTTAKE),
+					intakeStateHandler.setState(IntakeState.OUTTAKE),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(() -> !isObjectInFunnel()),
+				new ParallelCommandGroup(
+					pivotStateHandler.setState(PivotState.FEEDER),
+					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),
+					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
+					flywheelStateHandler.setState(FlywheelState.FEEDER)
+				).until(this::isObjectInFunnel)
+			),
+			rollerStateHandler.setState(RollerState.STOP),
+			wristStateHandler.setState(WristState.DEFAULT),
+			elbowStateHandler.setState(ElbowState.IDLE),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.FEEDER), joystick)
+		);
 	}
 
 	//@formatter:off

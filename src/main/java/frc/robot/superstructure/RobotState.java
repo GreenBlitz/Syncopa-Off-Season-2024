@@ -18,5 +18,8 @@ public enum RobotState {
 	INTAKE_OUTTAKE,
 	ARM_OUTTAKE,
 	PASSING,
+	ALIGN_REEF,
+	PRE_SCORE_REEF,
+	FEED,
 
 }

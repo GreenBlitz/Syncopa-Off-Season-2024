@@ -12,7 +12,7 @@ import frc.robot.hardware.phoenix6.Phoenix6Utils;
 import frc.robot.hardware.phoenix6.angleencoder.CANCoderEncoder;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.swerve.module.records.EncoderSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.alerts.Alert;
 
 class RealEncoderConstants {

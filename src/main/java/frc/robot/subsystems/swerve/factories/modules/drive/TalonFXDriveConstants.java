@@ -22,7 +22,7 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6LatencySignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.swerve.module.records.DriveRequests;
 import frc.robot.subsystems.swerve.module.records.DriveSignals;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 
 import static edu.wpi.first.units.Units.*;
 

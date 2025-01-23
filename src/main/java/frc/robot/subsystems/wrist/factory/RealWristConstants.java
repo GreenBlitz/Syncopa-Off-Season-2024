@@ -10,7 +10,7 @@ import frc.robot.hardware.request.srx.AngleSRXRequest;
 import frc.robot.hardware.signal.supplied.SuppliedAngleSignal;
 import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.WristStuff;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 import frc.utils.Conversions;
 
 import java.util.function.Supplier;

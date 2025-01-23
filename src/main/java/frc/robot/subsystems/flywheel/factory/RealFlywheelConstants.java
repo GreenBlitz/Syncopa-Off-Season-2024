@@ -18,7 +18,7 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6DoubleSignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.flywheel.FlyWheelConstants;
 import frc.robot.subsystems.flywheel.FlywheelStuff;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 
 import static edu.wpi.first.units.Units.*;
 

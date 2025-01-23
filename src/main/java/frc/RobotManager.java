@@ -76,7 +76,7 @@ public class RobotManager extends LoggedRobot {
 		robot.periodic();
 		AlertManager.reportAlerts();
 		Logger.recordOutput("Suppliers/reef", CodeCode.reefSide);
-		Logger.recordOutput("Suppliers/branhc", CodeCode.reefBranch);
+		Logger.recordOutput("Suppliers/branhc", CodeCode.leftBrnach);
 		Logger.recordOutput("Suppliers/feed", CodeCode.coralStationPosition);
 		Logger.recordOutput("swer ve cmd", robot.getSwerve().getCurrentCommand().getName());
 		robot.getPoseEstimators()[0].updateOdometry(robot.getSwerve().getAllOdometryObservations());

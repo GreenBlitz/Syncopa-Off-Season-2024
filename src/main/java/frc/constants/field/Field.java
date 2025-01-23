@@ -115,4 +115,15 @@ public class Field {
 		return mirrorAngle ? new Pose3d(translation3d, getAllianceRelative(pose.getRotation())) : new Pose3d(translation3d, pose.getRotation());
 	}
 
+	public static Translation2d branchCool(ReefSide side, boolean left) {
+		return getCoralPlacement(switch (side) {
+			case A -> left ? ReefBranch.A : ReefBranch.B;
+			case B -> left ? ReefBranch.C : ReefBranch.D;
+			case C -> left ? ReefBranch.F : ReefBranch.E;
+			case D -> left ? ReefBranch.H : ReefBranch.G;
+			case E -> left ? ReefBranch.J : ReefBranch.I;
+			case F -> left ? ReefBranch.K : ReefBranch.L;
+		});
+	}
+
 }

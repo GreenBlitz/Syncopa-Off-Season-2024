@@ -73,7 +73,7 @@ import java.util.Optional;
  */
 public class Robot {
 
-	public static final RobotType ROBOT_TYPE = RobotType.determineRobotType();
+	public static RobotType ROBOT_TYPE = RobotType.determineRobotType();
 
 	private final Swerve swerve;
 	private final Solenoid solenoid;
@@ -97,7 +97,7 @@ public class Robot {
 
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
-
+		ROBOT_TYPE = RobotType.REAL;
 		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/");
 		this.swerve = new Swerve(
 			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
@@ -144,7 +144,7 @@ public class Robot {
 			() -> Rotation2d.fromDegrees(0),
 			VisionConstants.DEFAULT_VISION_POSEESTIMATING_SOURCES
 		);
-
+		ROBOT_TYPE = RobotType.SIMULATION;
 		this.superstructureFunny = new Superstructure(swerve, poseEstimator);
 		this.superstructureRobot = new frc.robot.superstructure.Superstructure("Superstructure/", this);
 		this.statesMotionPlanner = new StatesMotionPlanner(superstructureRobot);

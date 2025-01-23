@@ -145,7 +145,6 @@ public class Robot {
 		configPathPlanner();
 	}
 
-
 	public void periodic() {
 		swerve.update();
 		poseEstimator.updateOdometry(swerve.getAllOdometryObservations());

@@ -6,8 +6,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.subsystems.GBSubsystem;
 import frc.joysticks.SmartJoystick;
+import frc.robot.subsystems.GBSubsystem;
 
 import java.util.function.Consumer;
 

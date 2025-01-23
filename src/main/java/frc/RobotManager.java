@@ -5,6 +5,7 @@
 package frc;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.joysticks.keyboard.KeyboardController;
 import frc.robot.Robot;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
@@ -34,6 +35,9 @@ public class RobotManager extends LoggedRobot {
 		this.robot = new Robot();
 
 		JoysticksBindings.configureBindings(robot);
+		if (KeyboardController.ENABLE_KEYBOARD) {
+			KeyboardBindings.configureBindings(robot);
+		}
 	}
 
 	@Override

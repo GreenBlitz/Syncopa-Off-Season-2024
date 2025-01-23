@@ -216,7 +216,7 @@ public class Superstructure extends GBSubsystem {
 					wristStateHandler.setState(WristState.PRE_TRAP)
 				)
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH), joystick), // todo
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH), joystick),
 			pivotStateHandler.setState(PivotState.IDLE),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)
 		);
@@ -231,7 +231,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick) // todo
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF), joystick)
 		);
 	}
 

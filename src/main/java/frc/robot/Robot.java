@@ -131,7 +131,7 @@ public class Robot {
 //		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.setHeadingSupplier(() -> headingEstimator.getEstimatedHeading().plus(Rotation2d.fromDegrees(150)));
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
-		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
+		swerve.getStateHandler().setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
 		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.getCoralPlacement(CodeCode.reefBranch)));
 		swerve.getStateHandler()
 			.setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfCoralStation(CodeCode.coralStationPosition).getTranslation()));

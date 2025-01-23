@@ -5,12 +5,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.constants.MathConstants;
-import frc.constants.field.Field;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
-import frc.robot.subsystems.swerve.states.aimassist.AimAssistMath;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssistMath;
 
 import java.util.Optional;
@@ -21,6 +19,8 @@ public class SwerveStateHandler {
 	private final Swerve swerve;
 	private final SwerveConstants swerveConstants;
 	private Optional<Supplier<Pose2d>> robotPoseSupplier;
+
+	private Supplier<Optional<Translation2d>> reefTranslationSupplier;
 	private Supplier<Optional<Translation2d>> feederTranslationSupplier;
 	private Supplier<Optional<Translation2d>> branchTranslationSupplier;
 	private Supplier<Optional<Translation2d>> algiTranslationSupplier;
@@ -30,6 +30,8 @@ public class SwerveStateHandler {
 		this.swerve = swerve;
 		this.swerveConstants = swerve.getConstants();
 		this.robotPoseSupplier = Optional.empty();
+
+		this.reefTranslationSupplier = Optional::empty;
 		this.feederTranslationSupplier = Optional::empty;
 		this.branchTranslationSupplier = Optional::empty;
 		this.algiTranslationSupplier = Optional::empty;
@@ -38,6 +40,10 @@ public class SwerveStateHandler {
 
 	public void setRobotPoseSupplier(Supplier<Pose2d> robotPoseSupplier) {
 		this.robotPoseSupplier = Optional.of(robotPoseSupplier);
+	}
+
+	public void setReedTranslationSupplier(Supplier<Optional<Translation2d>> reefTranslationSupplier) {
+		this.reefTranslationSupplier = reefTranslationSupplier;
 	}
 
 	public void setFeederTranslationSupplier(Supplier<Optional<Translation2d>> feederTranslationSupplier) {
@@ -81,9 +87,7 @@ public class SwerveStateHandler {
 
 	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		return AimAssistMath
-			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, Rotation2d.fromRadians(Field.LENGTH_METERS), swerveConstants); // use
-																																			// actual
-																																			// position
+			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading, reefTranslationSupplier.get().get().getAngle(), swerveConstants);
 	}
 
 	private ChassisSpeeds handleFeederAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {

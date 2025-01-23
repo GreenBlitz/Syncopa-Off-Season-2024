@@ -4,7 +4,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.poseestimation.PoseEstimator;
 import frc.robot.subsystems.funnel.Funnel;
 import frc.robot.subsystems.funnel.FunnelConstants;
@@ -43,7 +42,6 @@ import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.factory.WristFactory;
 import frc.robot.superstructure.StatesMotionPlanner;
 import frc.robot.superstructure.Superstructure;
-import frc.utils.auto.PathPlannerUtils;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
 

@@ -62,6 +62,7 @@ import frc.utils.time.TimeUtils;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very little robot logic should
@@ -128,6 +129,7 @@ public class Robot {
 //		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.setHeadingSupplier(() -> headingEstimator.getEstimatedHeading().plus(Rotation2d.fromDegrees(150)));
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
+		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of());
 
 		headingEstimator = new RobotHeadingEstimator(swerve.getGyroAbsoluteYaw(), swerve.getGyroAbsoluteYaw(), 0.0001);
 

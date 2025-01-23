@@ -69,9 +69,7 @@ public class Superstructure extends GBSubsystem {
 		this.flywheelStateHandler = new FlywheelStateHandler(robot.getFlywheel());
 		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
 		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
-		this.pivotStateHandler =
-				new PivotStateHandler(robot.getPivot(),
-						Optional.of(() -> robot.getPoseEstimator().getCurrentPose()));
+		this.pivotStateHandler = new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getCurrentPose()));
 		this.rollerStateHandler = new RollerStateHandler(robot.getRoller());
 		this.wristStateHandler = new WristStateHandler(robot.getWrist());
 
@@ -191,6 +189,7 @@ public class Superstructure extends GBSubsystem {
 			case PRE_AMP -> preAMP(joystick);
 			case AMP -> amp(joystick);
 			case ARM_UP -> armUp(joystick);
+			case SHOOT_L2 -> shootL2(joystick);
 			case TRANSFER_SHOOTER_TO_ARM -> transferShooterToArm(joystick);
 			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter(joystick);
 			case INTAKE_OUTTAKE -> intakeOuttake(joystick);
@@ -210,6 +209,32 @@ public class Superstructure extends GBSubsystem {
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.DEFAULT),
 			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+		);
+	}
+
+	private Command shootL2(SmartJoystick joystick) {
+		return new ParallelDeadlineGroup(
+				new SequentialCommandGroup(
+					new ParallelCommandGroup(
+						funnelStateHandler.setState(FunnelState.STOP),
+						wristStateHandler.setState(WristState.IN_ARM),
+						rollerStateHandler.setState(RollerState.STOP)
+				).withTimeout(0.1),//.until(() -> swerve.isAtHeading(Field.getAngleToAmp(), Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND)),
+				new ParallelCommandGroup(
+					elbowStateHandler.setState(ElbowState.PRE_AMP),
+					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
+					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
+					wristStateHandler.setState(WristState.PRE_TRAP)
+				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
+				new ParallelCommandGroup(
+					funnelStateHandler.setState(FunnelState.STOP),
+					intakeStateHandler.setState(IntakeState.STOP),
+					rollerStateHandler.setState(RollerState.FAST_ROLL_IN)
+				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
+			),
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
+			pivotStateHandler.setState(PivotState.IDLE),
+			flywheelStateHandler.setState(FlywheelState.DEFAULT)
 		);
 	}
 

@@ -16,7 +16,7 @@ public class EndBehaviorManager {
 			case INTAKE, ARM_INTAKE, SPEAKER, TRANSFER_SHOOTER_TO_ARM, TRANSFER_ARM_TO_SHOOTER, PASSING, FEEDER_INTAKE ->
 				superstructure.setState(RobotState.IDLE, joystick);
 			case INTAKE_WITH_FLYWHEEL -> superstructure.setState(RobotState.PRE_SPEAKER, joystick);
-			case AMP -> superstructure.setState(RobotState.ARM_UP, joystick);
+			case AMP, SHOOT_L2 -> superstructure.setState(RobotState.ARM_UP, joystick);
 			case INTAKE_OUTTAKE, ARM_OUTTAKE, PRE_AMP, PRE_SPEAKER, IDLE, ARM_UP -> superstructure.setState(state, joystick);
 		};
 	}

@@ -4,9 +4,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import frc.constants.field.Field;
 import frc.robot.subsystems.swerve.SwerveConstants;
 import frc.robot.subsystems.swerve.SwerveMath;
+import frc.robot.subsystems.swerve.states.DriveRelative;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.math.FieldMath;
 import frc.utils.math.ToleranceMath;
@@ -51,30 +51,28 @@ public class AimAssistMath {
 		Translation2d objectRelativeToRobot = FieldMath.getRelativeTranslation(robotPose, objectTranslation);
 		double pidHorizontalToObjectOutputVelocityMetersPerSecond = swerveConstants.yMetersPIDController()
 			.calculate(0, objectRelativeToRobot.getY());
+		
+		ChassisSpeeds robotRelativeSpeeds = speeds;
+		
+		ChassisSpeeds assistedSpeeds = new ChassisSpeeds(
+			robotRelativeSpeeds.vxMetersPerSecond,
+			pidHorizontalToObjectOutputVelocityMetersPerSecond,
+			robotRelativeSpeeds.omegaRadiansPerSecond
+		);
 
-		if (!Field.isFieldConventionAlliance()) {
-			pidHorizontalToObjectOutputVelocityMetersPerSecond *= -1;
+		if (swerveState.getDriveMode() == DriveRelative.FIELD_RELATIVE) {
+			robotRelativeSpeeds = SwerveMath.fieldToRobotRelativeSpeeds(speeds, robotPose.getRotation());
+
+			assistedSpeeds = new ChassisSpeeds(
+				robotRelativeSpeeds.vxMetersPerSecond,
+				pidHorizontalToObjectOutputVelocityMetersPerSecond,
+				robotRelativeSpeeds.omegaRadiansPerSecond
+			);
+
+			assistedSpeeds = SwerveMath.robotToFieldRelativeSpeeds(assistedSpeeds, robotPose.getRotation());
 		}
 
-		double xVelocityMetersPerSecond = speeds.vxMetersPerSecond;
-		double yVelocityMetersPerSecond = speeds.vyMetersPerSecond;
-
-		switch (swerveState.getDriveMode()) {
-			case FIELD_RELATIVE -> {
-				double xFieldRelativeVelocityAddition = pidHorizontalToObjectOutputVelocityMetersPerSecond
-					* robotPose.getRotation().unaryMinus().getSin();
-				double yFieldRelativeVelocityAddition = pidHorizontalToObjectOutputVelocityMetersPerSecond
-					* robotPose.getRotation().unaryMinus().getCos();
-
-				xVelocityMetersPerSecond += xFieldRelativeVelocityAddition;
-				yVelocityMetersPerSecond = yFieldRelativeVelocityAddition;
-			}
-			case ROBOT_RELATIVE -> {
-				yVelocityMetersPerSecond = pidHorizontalToObjectOutputVelocityMetersPerSecond;
-			}
-		}
-
-		return new ChassisSpeeds(xVelocityMetersPerSecond, yVelocityMetersPerSecond, speeds.omegaRadiansPerSecond);
+		return assistedSpeeds;
 	}
 
 	public static Rotation2d applyMagnitudeCompensation(Rotation2d velocityPerSecond, double magnitude) {

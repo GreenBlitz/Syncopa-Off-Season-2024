@@ -2,7 +2,9 @@ package frc;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.constants.field.enums.ReefSide;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
 import frc.joysticks.SmartJoystick;
@@ -170,6 +172,10 @@ public class JoysticksBindings {
 	private static void sixthJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
 		// bindings...
+		
+		usedJoystick.A.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
+		usedJoystick.B.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.B));
+		usedJoystick.X.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.C));
 	}
 
 }

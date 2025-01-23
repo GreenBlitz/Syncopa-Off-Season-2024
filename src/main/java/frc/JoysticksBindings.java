@@ -160,20 +160,27 @@ public class JoysticksBindings {
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {
-
 		SmartJoystick usedJoystick = FOURTH_JOYSTICK;
 		// bindings...
 
 		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2, usedJoystick));
 		usedJoystick.L1.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm(usedJoystick));
-		usedJoystick.X.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF,usedJoystick));
-		usedJoystick.B.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF,usedJoystick));
 		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE, usedJoystick));
 	}
 
 	private static void fifthJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = FIFTH_JOYSTICK;
 		// bindings...
+		usedJoystick.A.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
+		usedJoystick.Y.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.F));
+		usedJoystick.X.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.E));
+
+		usedJoystick.B.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
+
+		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF,FOURTH_JOYSTICK));
+		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF,FOURTH_JOYSTICK));
+
+		usedJoystick.START.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE, FOURTH_JOYSTICK));
 	}
 
 	private static void sixthJoystickButtons(Robot robot) {

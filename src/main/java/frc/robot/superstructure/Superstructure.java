@@ -299,7 +299,7 @@ public class Superstructure extends GBSubsystem {
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
-					wristStateHandler.setState(WristState.IN_ARM)
+					wristStateHandler.setState(WristState.PRE_TRAP)
 				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),

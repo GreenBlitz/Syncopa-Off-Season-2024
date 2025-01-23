@@ -3,10 +3,10 @@ package frc.robot.subsystems.swerve.states.aimassist;
 public enum AimAssist {
 
 	NONE,
-	NOTE,
-	SPEAKER,
-	PASS,
-	AMP,
-	COOL_AMP;
+	REEF,
+	BRANCH,
+	ALGI_REMOVE,
+	FEEDER,
+	SLOT;
 
 }

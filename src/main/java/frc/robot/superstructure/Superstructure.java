@@ -24,7 +24,6 @@ import frc.robot.subsystems.roller.RollerState;
 import frc.robot.subsystems.roller.RollerStateHandler;
 import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.states.SwerveState;
-import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.subsystems.wrist.WristState;
 import frc.robot.subsystems.wrist.WristStateHandler;
 import frc.utils.math.PoseMath;
@@ -257,7 +256,7 @@ public class Superstructure extends GBSubsystem {
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 
@@ -280,7 +279,7 @@ public class Superstructure extends GBSubsystem {
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 
@@ -348,7 +347,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.ARM_INTAKE),
 			elbowStateHandler.setState(ElbowState.ARM_INTAKE),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.NOTE), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 
@@ -361,7 +360,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 
@@ -382,7 +381,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 
@@ -538,7 +537,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PASSING),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.PASS), joystick)
+			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
 		);
 	}
 	//@formatter:on

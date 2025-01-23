@@ -23,10 +23,8 @@ public class AimAssistMath {
 			.fromDegrees(swerveConstants.rotationDegreesPIDController().calculate(robotHeading.getDegrees(), targetHeading.getDegrees()));
 
 		Rotation2d rotationalVelocityPerSecond = applyMagnitudeCompensation(pidOutputVelocityPerSecond, SwerveMath.getDriveMagnitude(speeds));
-		Rotation2d combinedRotationalVelocityPerSecond = Rotation2d
-			.fromRadians(rotationalVelocityPerSecond.getRadians() + speeds.omegaRadiansPerSecond);
 		Rotation2d clampedRotationalVelocityPerSecond = ToleranceMath
-			.clamp(combinedRotationalVelocityPerSecond, swerveConstants.maxRotationalVelocityPerSecond());
+			.clamp(rotationalVelocityPerSecond, swerveConstants.maxRotationalVelocityPerSecond());
 
 		return new ChassisSpeeds(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond, clampedRotationalVelocityPerSecond.getRadians());
 	}
@@ -53,6 +51,11 @@ public class AimAssistMath {
 		Translation2d objectRelativeToRobot = PoseMath.getRelativeTranslation(robotPose, objectTranslation);
 		double pidHorizontalToObjectOutputVelocityMetersPerSecond = swerveConstants.yMetersPIDController()
 			.calculate(0, objectRelativeToRobot.getY());
+
+		if (!Field.isFieldConventionAlliance()) {
+			pidHorizontalToObjectOutputVelocityMetersPerSecond *= -1;
+		}
+
 		double xVelocityMetersPerSecond = speeds.vxMetersPerSecond;
 		double yVelocityMetersPerSecond = speeds.vyMetersPerSecond;
 
@@ -63,19 +66,11 @@ public class AimAssistMath {
 				double yFieldRelativeVelocityAddition = pidHorizontalToObjectOutputVelocityMetersPerSecond
 					* robotPose.getRotation().unaryMinus().getCos();
 
-				if (!Field.isFieldConventionAlliance()) {
-					xFieldRelativeVelocityAddition = -xFieldRelativeVelocityAddition;
-					yFieldRelativeVelocityAddition = -yFieldRelativeVelocityAddition;
-				}
-
 				xVelocityMetersPerSecond += xFieldRelativeVelocityAddition;
-				yVelocityMetersPerSecond += yFieldRelativeVelocityAddition;
+				yVelocityMetersPerSecond = yFieldRelativeVelocityAddition;
 			}
 			case ROBOT_RELATIVE -> {
-				if (!Field.isFieldConventionAlliance()) {
-					pidHorizontalToObjectOutputVelocityMetersPerSecond = -pidHorizontalToObjectOutputVelocityMetersPerSecond;
-				}
-				yVelocityMetersPerSecond += pidHorizontalToObjectOutputVelocityMetersPerSecond;
+				yVelocityMetersPerSecond = pidHorizontalToObjectOutputVelocityMetersPerSecond;
 			}
 		}
 

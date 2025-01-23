@@ -46,6 +46,9 @@ public class SwerveStateHandler {
 			Rotation2d robotHeading = robotPoseSupplier.isPresent() ? robotPoseSupplier.get().get().getRotation() : swerve.getAbsoluteHeading();
 			return handleAmpAssist(speeds, robotHeading);
 		}
+		if (swerveState.getAimAssist() == AimAssist.COOL_AMP) {
+			return ampCool(speeds, swerveState);
+		}
 		if (swerveState.getAimAssist() == AimAssist.SPEAKER && robotPoseSupplier.isPresent()) {
 			return handleSpeakerAssist(speeds, robotPoseSupplier.get().get());
 		}
@@ -54,6 +57,17 @@ public class SwerveStateHandler {
 		}
 
 		return speeds;
+	}
+
+	public ChassisSpeeds ampCool(ChassisSpeeds speeds, SwerveState swerveState) {
+		Pose2d rp = robotPoseSupplier.get().get();
+		return AimAssistMath.getObjectAssistedSpeeds(
+			speeds,
+			new Pose2d(rp.getX(), rp.getY(), Field.getAngleToAmp()),
+			Field.kAmpCenter,
+			swerveConstants,
+			swerveState
+		);
 	}
 
 	private ChassisSpeeds handleNoteAimAssist(ChassisSpeeds speeds, Pose2d robotPose, Translation2d objectTranslation, SwerveState swerveState) {

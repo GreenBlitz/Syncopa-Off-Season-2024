@@ -6,6 +6,7 @@ public enum AimAssist {
 	NOTE,
 	SPEAKER,
 	PASS,
-	AMP;
+	AMP,
+	COOL_AMP;
 
 }

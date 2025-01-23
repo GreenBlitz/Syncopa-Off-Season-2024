@@ -1,20 +1,20 @@
-package frc.robot.poseestimator.helpers;
+package frc.utils.math;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N6;
+import edu.wpi.first.math.numbers.N3;
 import frc.robot.poseestimator.Pose3dComponentsValue;
 import frc.utils.alerts.Alert;
 
 public class StandardDeviations3D {
 
-	double xAxisStandardDeviations;
-	double yAxisStandardDeviations;
-	double zAxisStandardDeviations;
-	double rollStandardDeviations;
-	double pitchStandardDeviations;
-	double yawStandardDeviations;
+	private double xAxisStandardDeviations;
+	private double yAxisStandardDeviations;
+	private double zAxisStandardDeviations;
+	private double rollStandardDeviations;
+	private double pitchStandardDeviations;
+	private double yawStandardDeviations;
 
 	public StandardDeviations3D(double[] standardDeviations) {
 		if (standardDeviations.length != Pose3dComponentsValue.POSE3D_COMPONENTS_AMOUNT) {
@@ -37,15 +37,16 @@ public class StandardDeviations3D {
 
 	public StandardDeviations3D() {}
 
-	public Matrix<N6, N1> getAsColumnVector() {
-		return VecBuilder.fill(
-			xAxisStandardDeviations,
-			yAxisStandardDeviations,
-			zAxisStandardDeviations,
-			rollStandardDeviations,
-			pitchStandardDeviations,
-			yawStandardDeviations
-		);
+	public Matrix<N3, N1> getAsColumnVector() {
+		return VecBuilder.fill(xAxisStandardDeviations, yAxisStandardDeviations, zAxisStandardDeviations);
+	}
+
+	public Matrix<N3, N1> get2dStandardDeviations() {
+		return VecBuilder.fill(xAxisStandardDeviations, yAxisStandardDeviations, yawStandardDeviations);
+	}
+
+	public StandardDeviations2D getAs2DDeviations() {
+		return new StandardDeviations2D(xAxisStandardDeviations, yAxisStandardDeviations, yawStandardDeviations);
 	}
 
 	public double getXAxisStandardDeviations() {

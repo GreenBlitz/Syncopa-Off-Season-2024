@@ -44,16 +44,18 @@ public class Alert {
 	}
 
 	public void report() {
-		timesOccurredSinceLastReportToDriverStation++;
-		if (!DriverStationUtils.isMatch()) {
-			switch (type) {
-				case ERROR:
-					if (shouldReportToDriverStation()) {
-						reportToDriverStation();
-					}
+		if (!DriverStationUtils.isMatch() && false) {
+			timesOccurredSinceLastReportToDriverStation++;
+			if (!DriverStationUtils.isMatch()) {
+				switch (type) {
+					case ERROR:
+						if (shouldReportToDriverStation()) {
+							reportToDriverStation();
+						}
+				}
 			}
+			Logger.recordOutput(logPath, TimeUtils.getCurrentTimeSeconds());
 		}
-		Logger.recordOutput(logPath, TimeUtils.getCurrentTimeSeconds());
 	}
 
 }

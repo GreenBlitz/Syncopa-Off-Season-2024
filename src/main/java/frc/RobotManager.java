@@ -71,6 +71,13 @@ public class RobotManager extends LoggedRobot {
 		updateTimeRelatedData(); // Better to be first
 		robot.periodic();
 		AlertManager.reportAlerts();
+		Logger.recordOutput("swer ve cmd", robot.getSwerve().getCurrentCommand().getName());
+		robot.getPoseEstimators()[0].updateOdometry(robot.getSwerve().getAllOdometryObservations());
+		robot.getPoseEstimators()[0].updateVision(robot.getAprilTagVisionSources()[0].getFilteredVisionData());
+		robot.getPoseEstimators()[1].updateOdometry(robot.getSwerve().getAllOdometryObservations());
+		robot.getPoseEstimators()[1].updateVision(robot.getAprilTagVisionSources()[1].getFilteredVisionData());
+		robot.getPoseEstimators()[2].updateOdometry(robot.getSwerve().getAllOdometryObservations());
+		robot.getPoseEstimators()[2].updateVision(robot.getAprilTagVisionSources()[2].getFilteredVisionData());
 	}
 
 	private void updateTimeRelatedData() {

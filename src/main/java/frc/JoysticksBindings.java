@@ -2,7 +2,6 @@ package frc;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.joysticks.Axis;
 import frc.joysticks.JoystickPorts;
@@ -36,8 +35,13 @@ public class JoysticksBindings {
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
-		usedJoystick.Y.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetHeading(new Rotation2d())));
-		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(5, 5, new Rotation2d()))));
+//		usedJoystick.Y.onTrue(
+//			new InstantCommand(
+//				() -> robot.getPoseEstimator()
+//					.resetPose(new Pose2d(robot.getPoseEstimator().getEstimatedPose().getTranslation(), new Rotation2d()))
+//			)
+//		);
+//		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(5, 5, new Rotation2d()))));
 
 		usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheelsInX());
 		usedJoystick.X.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheels(Rotation2d.fromDegrees(90), true));
@@ -65,7 +69,7 @@ public class JoysticksBindings {
 					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
 					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
 					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
-					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.AMP)
+					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.SPEAKER)
 				)
 		);
 		usedJoystick.L1.whileTrue(
@@ -126,12 +130,14 @@ public class JoysticksBindings {
 		usedJoystick.BACK.whileTrue(
 			robot.getSwerve()
 				.getCommandsBuilder()
-				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(4, 4, Rotation2d.fromDegrees(17)))
+				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> new Pose2d(4, 4, Rotation2d.fromDegrees(17)))
+				.until(() -> robot.getSuperstructureFunny().isAtPose(new Pose2d(4, 4, Rotation2d.fromDegrees(17))))
 		);
 		usedJoystick.START.whileTrue(
 			robot.getSwerve()
 				.getCommandsBuilder()
-				.driveToPose(robot.getPoseEstimator()::getCurrentPose, () -> new Pose2d(6, 6, Rotation2d.fromDegrees(90)))
+				.driveToPose(robot.getPoseEstimator()::getEstimatedPose, () -> new Pose2d(6, 6, Rotation2d.fromDegrees(90)))
+				.until(() -> robot.getSuperstructureFunny().isAtPose(new Pose2d(6, 6, Rotation2d.fromDegrees(90))))
 		);
 	}
 
@@ -151,14 +157,14 @@ public class JoysticksBindings {
 	private static void thirdJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = THIRD_JOYSTICK;
 		// bindings...
-		usedJoystick.A.onTrue(robot.getSuperstructure().setState(RobotState.INTAKE, usedJoystick));
-		usedJoystick.X.onTrue(robot.getSuperstructure().setState(RobotState.ARM_INTAKE, usedJoystick));
-		usedJoystick.Y.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_ARM_TO_SHOOTER, usedJoystick));
-		usedJoystick.B.onTrue(robot.getSuperstructure().setState(RobotState.TRANSFER_SHOOTER_TO_ARM, usedJoystick));
-		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructure().setState(RobotState.AMP, usedJoystick));
-		usedJoystick.POV_RIGHT.onTrue(robot.getSuperstructure().setState(RobotState.PRE_AMP, usedJoystick));
+		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.INTAKE, usedJoystick));
+		usedJoystick.X.onTrue(robot.getSuperstructureRobot().setState(RobotState.ARM_INTAKE, usedJoystick));
+		usedJoystick.Y.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_ARM_TO_SHOOTER, usedJoystick));
+		usedJoystick.B.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_SHOOTER_TO_ARM, usedJoystick));
+		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructureRobot().setState(RobotState.AMP, usedJoystick));
+		usedJoystick.POV_RIGHT.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_AMP, usedJoystick));
 		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm(usedJoystick));
-		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructure().setState(RobotState.SHOOT_L2, usedJoystick));
+		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2, usedJoystick));
 	}
 
 	private static void fourthJoystickButtons(Robot robot) {

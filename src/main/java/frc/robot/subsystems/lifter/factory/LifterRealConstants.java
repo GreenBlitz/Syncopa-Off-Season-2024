@@ -42,7 +42,7 @@ public class LifterRealConstants {
 			lifter,
 			DRUM_RADIUS,
 			generateLimitSwitch(),
-			Phoenix6SignalBuilder.generatePhoenix6Signal(
+			Phoenix6SignalBuilder.build(
 				lifter.getDevice().getPosition(),
 				RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
 				AngleUnit.ROTATIONS

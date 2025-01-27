@@ -3,9 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.CodeCode;
 import frc.constants.field.Field;
@@ -38,32 +35,25 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
-import frc.constants.RobotHeadingEstimatorConstants;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.constants.VisionConstants;
-import frc.robot.hardware.signal.TimedValue;
-import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
-import frc.robot.poseestimator.helpers.RobotHeadingEstimator;
 import frc.robot.structures.Superstructure;
 import frc.robot.subsystems.swerve.Swerve;
+import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
-import frc.robot.subsystems.swerve.factories.swerveconstants.SwerveConstantsFactory;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.factory.WristFactory;
 import frc.robot.superstructure.StatesMotionPlanner;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
-import frc.robot.vision.data.HeadingData;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
+import frc.robot.vision.sources.limelights.LimelightFactory;
 import frc.utils.auto.PathPlannerUtils;
 import frc.utils.battery.BatteryUtils;
-import frc.utils.time.TimeUtils;
-import org.littletonrobotics.junction.Logger;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -89,18 +79,17 @@ public class Robot {
 	private final Superstructure superstructureFunny;
 	private final StatesMotionPlanner statesMotionPlanner;
 	private final IPoseEstimator poseEstimator;
-	private final MultiAprilTagVisionSources aprilTagVisionSources;
+	private final MultiAprilTagVisionSources multiAprilTagVisionSources;
 	private final frc.robot.superstructure.Superstructure superstructureRobot;
-	private RobotHeadingEstimator headingEstimator = null;
 
 	private AutonomousChooser autonomousChooser;
 
 	public Robot() {
 		BatteryUtils.scheduleLimiter();
-		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/");
+		IGyro gyro = GyroFactory.createGyro(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "Swerve/");
 		this.swerve = new Swerve(
-			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
-			ModulesFactory.create(RobotConstants.SUBSYSTEM_LOG_PREFIX + "Swerve/"),
+			SwerveConstantsFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
+			ModulesFactory.create(RobotConstants.SUBSYSTEM_LOGPATH_PREFIX + "/Swerve"),
 			gyro,
 			GyroFactory.createSignals(gyro)
 		);
@@ -121,13 +110,24 @@ public class Robot {
 		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
 
 		this.poseEstimator = new WPILibPoseEstimatorWrapper(
-			WPILibPoseEstimatorConstants.WPILIB_POSEESTIMATOR_LOGPATH,
+			"PoseEstimator/",
 			swerve.getKinematics(),
 			swerve.getAllOdometryObservations()[0].wheelPositions(),
-			WPILibPoseEstimatorConstants.INITIAL_GYRO_ANGLE
+			swerve.getGyroAbsoluteYaw()
 		);
 
-//		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
+		this.multiAprilTagVisionSources = new MultiAprilTagVisionSources(
+			VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+			() -> poseEstimator.getEstimatedPose().getRotation(),
+			false,
+			LimelightFactory.createRobotHeadingEstimatingLimelight(
+				"limelight-back",
+				VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
+				"CameraForMegaTag1",
+				VisionConstants.DEFAULT_VISION_FILTER
+			)
+		);
+
 		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
 		swerve.getStateHandler().setReedTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
@@ -135,15 +135,7 @@ public class Robot {
 		swerve.getStateHandler()
 			.setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfCoralStation(CodeCode.coralStationPosition).getTranslation()));
 
-		headingEstimator = new RobotHeadingEstimator(swerve.getGyroAbsoluteYaw(), swerve.getGyroAbsoluteYaw(), 0.0001);
-
-		this.aprilTagVisionSources = new MultiAprilTagVisionSources(
-			VisionConstants.MULTI_VISION_SOURCES_LOGPATH,
-			() -> (headingEstimator.getEstimatedHeading()),
-			() -> Rotation2d.fromDegrees(0),
-			VisionConstants.DEFAULT_VISION_POSEESTIMATING_SOURCES
-		);
-		this.superstructureFunny = new Superstructure(swerve, poseEstimator);
+		this.superstructureFunny = new Superstructure(swerve, poseEstimator, multiAprilTagVisionSources);
 		this.superstructureRobot = new frc.robot.superstructure.Superstructure("Superstructure/", this);
 		this.statesMotionPlanner = new StatesMotionPlanner(superstructureRobot);
 
@@ -151,26 +143,11 @@ public class Robot {
 	}
 
 	public void periodic() {
-		swerve.update();
-		headingEstimator.updateGyroAngle(new HeadingData(swerve.getGyroAbsoluteYaw(), TimeUtils.getCurrentTimeSeconds()));
-		List<TimedValue<Rotation2d>> headingAndTime = aprilTagVisionSources.getRawRobotHeadings();
-		if (!headingAndTime.isEmpty()) {
-			Logger.recordOutput("Robot Heading", headingAndTime.get(0).value());
-			headingEstimator.updateVisionIfNotCalibrated(
-				new HeadingData(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp()),
-				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-				0.001
-			);
-//			headingEstimator.updateVisionHeading(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp());
-//			headingEstimator.updateVisionHeading(headingAndTime.get(0).getFirst(), TimeUtils.getCurrentTimeSeconds());
-		}
-		poseEstimator.updateOdometry(swerve.getAllOdometryObservations());
-		poseEstimator.updateVision(aprilTagVisionSources.getUnfilteredVisionData());
-
 		superstructureFunny.periodic();
 		superstructureRobot.periodic();
 		BatteryUtils.logStatus();
 		BusChain.logChainsStatuses();
+		multiAprilTagVisionSources.log();
 		CommandScheduler.getInstance().run(); // Should be last
 	}
 
@@ -186,10 +163,6 @@ public class Robot {
 			PathPlannerUtils.getGuiRobotConfig().orElse(AutonomousConstants.SYNCOPA_ROBOT_CONFIG)
 		);
 //		autonomousChooser = new AutonomousChooser("Autonomous Chooser");
-		superstructureRobot.periodic();
-		aprilTagVisionSources.log();
-		Logger.recordOutput("Robot Heading By Estimator", new Pose2d(new Translation2d(0, 0), headingEstimator.getEstimatedHeading()));
-		CommandScheduler.getInstance().run(); // Should be last
 	}
 
 
@@ -258,11 +231,7 @@ public class Robot {
 	}
 
 	public MultiAprilTagVisionSources[] getAprilTagVisionSources() {
-		return new MultiAprilTagVisionSources[] {aprilTagVisionSources};
-	}
-
-	public RobotHeadingEstimator getHeadingEstimator() {
-		return headingEstimator;
+		return new MultiAprilTagVisionSources[] {multiAprilTagVisionSources};
 	}
 
 }

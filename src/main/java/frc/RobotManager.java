@@ -35,9 +35,6 @@ public class RobotManager extends LoggedRobot {
 		this.robot = new Robot();
 
 		JoysticksBindings.configureBindings(robot);
-		if (KeyboardController.ENABLE_KEYBOARD) {
-			KeyboardBindings.configureBindings(robot);
-		}
 	}
 
 	@Override

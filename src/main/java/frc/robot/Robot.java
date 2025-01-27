@@ -157,9 +157,9 @@ public class Robot {
 		if (!headingAndTime.isEmpty()) {
 			Logger.recordOutput("Robot Heading", headingAndTime.get(0).value());
 			headingEstimator.updateVisionIfNotCalibrated(
-					new HeadingData(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp()),
-					RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
-					0.001
+				new HeadingData(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp()),
+				RobotHeadingEstimatorConstants.DEFAULT_VISION_STANDARD_DEVIATION,
+				0.001
 			);
 //			headingEstimator.updateVisionHeading(headingAndTime.get(0).value(), headingAndTime.get(0).timestamp());
 //			headingEstimator.updateVisionHeading(headingAndTime.get(0).getFirst(), TimeUtils.getCurrentTimeSeconds());

@@ -51,9 +51,9 @@ public class AimAssistMath {
 		Translation2d objectRelativeToRobot = FieldMath.getRelativeTranslation(robotPose, objectTranslation);
 		double pidHorizontalToObjectOutputVelocityMetersPerSecond = swerveConstants.yMetersPIDController()
 			.calculate(0, objectRelativeToRobot.getY());
-		
+
 		ChassisSpeeds robotRelativeSpeeds = speeds;
-		
+
 		ChassisSpeeds assistedSpeeds = new ChassisSpeeds(
 			robotRelativeSpeeds.vxMetersPerSecond,
 			pidHorizontalToObjectOutputVelocityMetersPerSecond,

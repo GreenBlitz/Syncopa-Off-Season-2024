@@ -178,8 +178,8 @@ public class JoysticksBindings {
 
 		usedJoystick.B.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
 
-		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF,FOURTH_JOYSTICK));
-		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF,FOURTH_JOYSTICK));
+		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF, FOURTH_JOYSTICK));
+		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF, FOURTH_JOYSTICK));
 
 		usedJoystick.START.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE, FOURTH_JOYSTICK));
 	}
@@ -187,7 +187,7 @@ public class JoysticksBindings {
 	private static void sixthJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
 		// bindings...
-		
+
 		usedJoystick.A.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
 		usedJoystick.B.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.B));
 		usedJoystick.X.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.C));

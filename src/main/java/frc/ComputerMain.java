@@ -16,10 +16,6 @@ public class ComputerMain {
 
 	private static void startComputerPrograms(String connectedIP) {
 		CMDHandler.runPythonScript(Path.of("BatteryMessage"), connectedIP);
-
-		if (KeyboardController.ENABLE_KEYBOARD) {
-			CMDHandler.runPythonScript(Path.of("KeyboardToNetworkTables"), connectedIP);
-		}
 	}
 
 }

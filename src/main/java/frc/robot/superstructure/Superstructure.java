@@ -2,11 +2,7 @@ package frc.robot.superstructure;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.*;
-import frc.JoysticksBindings;
-import frc.joysticks.Axis;
-import frc.joysticks.SmartJoystick;
 import frc.robot.Robot;
 import frc.robot.subsystems.GBSubsystem;
 import frc.robot.subsystems.elbow.ElbowState;
@@ -45,8 +41,6 @@ public class Superstructure extends GBSubsystem {
 		return command.beforeStarting(setCurrentStateName(state));
 	};
 
-	private static final double NOTE_IN_RUMBLE_POWER = 0.5;
-
 	private final Robot robot;
 	private final Swerve swerve;
 	private final ElbowStateHandler elbowStateHandler;
@@ -75,11 +69,7 @@ public class Superstructure extends GBSubsystem {
 		this.currentState = RobotState.IDLE;
 		this.endBehaviorManager = new EndBehaviorManager(this);
 
-		setDefaultCommand(JoysticksBindings.FOURTH_JOYSTICK);
-	}
-
-	public void setDefaultCommand(SmartJoystick joystick) {
-		setDefaultCommand(new DeferredCommand(() -> endBehaviorManager.endState(currentState, joystick), Set.of(this)));
+		setDefaultCommand(new DeferredCommand(() -> endBehaviorManager.endState(currentState), Set.of(this)));
 	}
 
 	public RobotState getCurrentState() {
@@ -94,12 +84,16 @@ public class Superstructure extends GBSubsystem {
 		return robot.getRoller().isObjectIn();
 	}
 
-	private boolean isObjectInIntake() {
+	public boolean isObjectInIntake() {
 		return robot.getIntake().isObjectIn();
 	}
 
-	private boolean isObjectInFunnel() {
+	public boolean isObjectInFunnel() {
 		return robot.getFunnel().isObjectIn();
+	}
+
+	public boolean isObjectIn() {
+		return isObjectInFunnel() || isObjectInIntake();
 	}
 
 	private boolean isReadyToTransfer() {
@@ -160,50 +154,31 @@ public class Superstructure extends GBSubsystem {
 		return new InstantCommand(() -> currentState = state);
 	}
 
-	private Command noteInRumble(SmartJoystick joystick) {
-		return new FunctionalCommand(
-			() -> {},
-			() -> joystick.setRumble(GenericHID.RumbleType.kBothRumble, NOTE_IN_RUMBLE_POWER),
-			interrupted -> joystick.stopRumble(GenericHID.RumbleType.kBothRumble),
-			() -> false
-		).withTimeout(Timeouts.NOTE_IN_RUMBLE);
-	}
-
-	private Command driveByMainJoystick(SwerveState state, SmartJoystick joystick) {
-		return swerve.getCommandsBuilder()
-			.driveByState(
-				() -> joystick.getAxisValue(Axis.LEFT_Y),
-				() -> joystick.getAxisValue(Axis.LEFT_X),
-				() -> joystick.getAxisValue(Axis.RIGHT_X),
-				state
-			);
-	}
-
-	public Command setState(RobotState state, SmartJoystick joystick) {
+	public Command setState(RobotState state) {
 		return robotCommandGenerator.makeRobotCommand(switch (state) {
-			case IDLE -> idle(joystick);
-			case INTAKE -> intake(joystick);
-			case INTAKE_WITH_FLYWHEEL -> intakeWithFlywheel(joystick);
-			case FEEDER_INTAKE -> feederIntake(joystick);
-			case ARM_INTAKE -> armIntake(joystick);
-			case PRE_SPEAKER -> preSpeaker(joystick);
-			case SPEAKER -> speaker(joystick);
-			case PRE_AMP -> preAMP(joystick);
-			case AMP -> amp(joystick);
-			case ARM_UP -> armUp(joystick);
-			case SHOOT_L2 -> shootL2(joystick);
-			case TRANSFER_SHOOTER_TO_ARM -> transferShooterToArm(joystick);
-			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter(joystick);
-			case INTAKE_OUTTAKE -> intakeOuttake(joystick);
-			case ARM_OUTTAKE -> armOuttake(joystick);
-			case PASSING -> passing(joystick);
-			case FEED -> feed(joystick);
-			case ALIGN_REEF -> alignReef(joystick);
-			case PRE_SCORE_REEF -> preReef(joystick);
+			case IDLE -> idle();
+			case INTAKE -> intake();
+			case INTAKE_WITH_FLYWHEEL -> intakeWithFlywheel();
+			case FEEDER_INTAKE -> feederIntake();
+			case ARM_INTAKE -> armIntake();
+			case PRE_SPEAKER -> preSpeaker();
+			case SPEAKER -> speaker();
+			case PRE_AMP -> preAMP();
+			case AMP -> amp();
+			case ARM_UP -> armUp();
+			case SHOOT_L2 -> shootL2();
+			case TRANSFER_SHOOTER_TO_ARM -> transferShooterToArm();
+			case TRANSFER_ARM_TO_SHOOTER -> transferArmToShooter();
+			case INTAKE_OUTTAKE -> intakeOuttake();
+			case ARM_OUTTAKE -> armOuttake();
+			case PASSING -> passing();
+			case FEED -> feed();
+			case ALIGN_REEF -> alignReef();
+			case PRE_SCORE_REEF -> preReef();
 		}, state);
 	}
 
-	private Command preReef(SmartJoystick joystick) {
+	private Command preReef() {
 		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -219,13 +194,13 @@ public class Superstructure extends GBSubsystem {
 					wristStateHandler.setState(WristState.IN_ARM)
 				)
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH), joystick),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.BRANCH)),
 			pivotStateHandler.setState(PivotState.IDLE),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)
 		);
 	}
 
-	private Command alignReef(SmartJoystick joystick) {
+	private Command alignReef() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.MANUAL),
 			intakeStateHandler.setState(IntakeState.STOP),
@@ -234,11 +209,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF), joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF))
 		);
 	}
 
-	private Command feed(SmartJoystick joystick) {
+	private Command feed() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -269,12 +244,12 @@ public class Superstructure extends GBSubsystem {
 			rollerStateHandler.setState(RollerState.STOP),
 			wristStateHandler.setState(WristState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.IDLE),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.FEEDER), joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.FEEDER))
 		);
 	}
 
 	//@formatter:off
-	private Command idle(SmartJoystick joystick) {
+	private Command idle() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.MANUAL),
 			intakeStateHandler.setState(IntakeState.STOP),
@@ -283,11 +258,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command shootL2(SmartJoystick joystick) {
+	private Command shootL2() {
 		return new ParallelDeadlineGroup(
 				new SequentialCommandGroup(
 					new ParallelCommandGroup(
@@ -307,13 +282,13 @@ public class Superstructure extends GBSubsystem {
 					rollerStateHandler.setState(RollerState.ROLL_OUT)
 				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE),
 			pivotStateHandler.setState(PivotState.IDLE),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)
 		);
 	}
 
-	private Command intake(SmartJoystick joystick) {
+	private Command intake() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -322,7 +297,6 @@ public class Superstructure extends GBSubsystem {
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(this::isObjectInIntake),
 				new ParallelCommandGroup(
-					noteInRumble(joystick),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
@@ -332,11 +306,11 @@ public class Superstructure extends GBSubsystem {
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command intakeWithFlywheel(SmartJoystick joystick) {
+	private Command intakeWithFlywheel() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -345,7 +319,6 @@ public class Superstructure extends GBSubsystem {
 					funnelStateHandler.setState(FunnelState.STOP)
 				).until(this::isObjectInIntake),
 				new ParallelCommandGroup(
-					noteInRumble(joystick),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
 					funnelStateHandler.setState(FunnelState.INTAKE),
 					rollerStateHandler.setState(RollerState.ROLL_IN)
@@ -355,11 +328,11 @@ public class Superstructure extends GBSubsystem {
 			pivotStateHandler.setState(PivotState.IDLE),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command feederIntake(SmartJoystick joystick) {
+	private Command feederIntake() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -393,11 +366,11 @@ public class Superstructure extends GBSubsystem {
 			rollerStateHandler.setState(RollerState.STOP),
 			wristStateHandler.setState(WristState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.IDLE),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command armIntake(SmartJoystick joystick) {
+	private Command armIntake() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -406,7 +379,6 @@ public class Superstructure extends GBSubsystem {
 					wristStateHandler.setState(WristState.ARM_INTAKE)
 				).until(this::isObjectInIntake),
 				new ParallelCommandGroup(
-					noteInRumble(joystick),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_ARM),
 					rollerStateHandler.setState(RollerState.ROLL_IN),
 					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),
@@ -423,11 +395,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.ARM_INTAKE),
 			elbowStateHandler.setState(ElbowState.ARM_INTAKE),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command preSpeaker(SmartJoystick joystick) {
+	private Command preSpeaker() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.STOP),
 			intakeStateHandler.setState(IntakeState.STOP),
@@ -436,11 +408,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command speaker(SmartJoystick joystick) {
+	private Command speaker() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -457,11 +429,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PRE_SPEAKER),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command preAMP(SmartJoystick joystick) {
+	private Command preAMP() {
 		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -477,7 +449,7 @@ public class Superstructure extends GBSubsystem {
 					intakeStateHandler.setState(IntakeState.STOP)
 				)
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE),
 			rollerStateHandler.setState(RollerState.STOP),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
@@ -485,7 +457,7 @@ public class Superstructure extends GBSubsystem {
 		);
 	}
 
-	private Command amp(SmartJoystick joystick) {
+	private Command amp() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -503,14 +475,14 @@ public class Superstructure extends GBSubsystem {
 					rollerStateHandler.setState(RollerState.ROLL_OUT)
 				).withTimeout(Timeouts.AMP_RELEASE_SECONDS)//.until(() -> !isObjectInRoller())
 			),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick),
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE),
 			pivotStateHandler.setState(PivotState.IDLE),
 			wristStateHandler.setState(WristState.IN_ARM),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT)
 		);
 	}
 
-	private Command armUp(SmartJoystick joystick) {
+	private Command armUp() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.MANUAL),
 			intakeStateHandler.setState(IntakeState.STOP),
@@ -519,11 +491,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			elbowStateHandler.setState(ElbowState.PRE_AMP),
 			wristStateHandler.setState(WristState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command transferShooterToArm(SmartJoystick joystick) {
+	private Command transferShooterToArm() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -544,11 +516,11 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			intakeStateHandler.setState(IntakeState.STOP),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command transferArmToShooter(SmartJoystick joystick) {
+	private Command transferArmToShooter() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -566,11 +538,11 @@ public class Superstructure extends GBSubsystem {
 			),
 			wristStateHandler.setState(WristState.IN_ARM),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command intakeOuttake(SmartJoystick joystick) {
+	private Command intakeOuttake() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.ROLL_OUT),
 			intakeStateHandler.setState(IntakeState.OUTTAKE),
@@ -579,11 +551,11 @@ public class Superstructure extends GBSubsystem {
 			elbowStateHandler.setState(ElbowState.MANUAL),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command armOuttake(SmartJoystick joystick) {
+	private Command armOuttake() {
 		return new ParallelCommandGroup(
 			rollerStateHandler.setState(RollerState.FAST_ROLL_IN),
 			elbowStateHandler.setState(ElbowState.ARM_INTAKE),
@@ -592,11 +564,11 @@ public class Superstructure extends GBSubsystem {
 			funnelStateHandler.setState(FunnelState.SLOW_OUTTAKE),
 			pivotStateHandler.setState(PivotState.INTAKE),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 
-	private Command passing(SmartJoystick joystick) {
+	private Command passing() {
 		return new ParallelDeadlineGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
@@ -613,7 +585,7 @@ public class Superstructure extends GBSubsystem {
 			flywheelStateHandler.setState(FlywheelState.PASSING),
 			elbowStateHandler.setState(ElbowState.INTAKE),
 			wristStateHandler.setState(WristState.IN_ARM),
-			driveByMainJoystick(SwerveState.DEFAULT_DRIVE, joystick)
+			swerve.getCommandsBuilder().driveByDriversInputs(SwerveState.DEFAULT_DRIVE)
 		);
 	}
 	//@formatter:on

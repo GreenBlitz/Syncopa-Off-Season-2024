@@ -2,7 +2,11 @@ package frc;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.constants.field.enums.ReefSide;
 import frc.joysticks.Axis;
@@ -14,9 +18,16 @@ import frc.robot.subsystems.swerve.states.RotateAxis;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.superstructure.RobotState;
+import frc.robot.superstructure.Timeouts;
 import frc.robot.superstructure.Tolerances;
+import frc.robot.subsystems.swerve.ChassisPowers;
+import frc.robot.subsystems.swerve.Swerve;
+import frc.utils.time.TimeUtils;
 
 public class JoysticksBindings {
+
+	private static final double NOTE_IN_RUMBLE_POWER = 0.5;
+	private static final double TIME_BETWEEN_RUMBLE_SECONDS = 0.5;
 
 	private static final SmartJoystick MAIN_JOYSTICK = new SmartJoystick(JoystickPorts.MAIN);
 	private static final SmartJoystick SECOND_JOYSTICK = new SmartJoystick(JoystickPorts.SECOND);
@@ -25,6 +36,12 @@ public class JoysticksBindings {
 	private static final SmartJoystick FIFTH_JOYSTICK = new SmartJoystick(JoystickPorts.FIFTH);
 	private static final SmartJoystick SIXTH_JOYSTICK = new SmartJoystick(JoystickPorts.SIXTH);
 
+	private static double lastTimeRumbled = -1;
+
+	private static boolean isTimeToRumble() {
+		return TimeUtils.getCurrentTimeSeconds() - lastTimeRumbled > TIME_BETWEEN_RUMBLE_SECONDS;
+	}
+
 	public static void configureBindings(Robot robot) {
 		mainJoystickButtons(robot);
 		secondJoystickButtons(robot);
@@ -32,14 +49,89 @@ public class JoysticksBindings {
 		fourthJoystickButtons(robot);
 		fifthJoystickButtons(robot);
 		sixthJoystickButtons(robot);
+
+		Trigger isObjectIn = new Trigger(() -> robot.getSuperstructureRobot().isObjectIn());
+		Trigger isTimeToRumble = new Trigger(JoysticksBindings::isTimeToRumble);
+		isObjectIn.and(isTimeToRumble).onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
+	}
+
+	public static void setDriversInputsToSwerve(Swerve swerve) {
+		if (MAIN_JOYSTICK.isConnected()) {
+			swerve.setDriversPowerInputs(
+				new ChassisPowers(
+					MAIN_JOYSTICK.getAxisValue(Axis.LEFT_Y),
+					MAIN_JOYSTICK.getAxisValue(Axis.LEFT_X),
+					MAIN_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+				)
+			);
+		} else if (THIRD_JOYSTICK.isConnected()) {
+			swerve.setDriversPowerInputs(
+				new ChassisPowers(
+					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_Y),
+					THIRD_JOYSTICK.getAxisValue(Axis.LEFT_X),
+					THIRD_JOYSTICK.getAxisValue(Axis.RIGHT_X)
+				)
+			);
+		} else {
+			swerve.setDriversPowerInputs(new ChassisPowers(0, 0, 0));
+		}
+	}
+
+	private static Command noteInRumble(SmartJoystick joystick) {
+		return new FunctionalCommand(
+			() -> lastTimeRumbled = TimeUtils.getCurrentTimeSeconds(),
+			() -> joystick.setRumble(GenericHID.RumbleType.kBothRumble, NOTE_IN_RUMBLE_POWER),
+			interrupted -> joystick.stopRumble(GenericHID.RumbleType.kBothRumble),
+			() -> false
+		).withTimeout(Timeouts.NOTE_IN_RUMBLE);
 	}
 
 	private static void mainJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = MAIN_JOYSTICK;
 		// bindings...
+
+		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2));
+		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm());
+		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
+	}
+
+	private static void secondJoystickButtons(Robot robot) {
+		SmartJoystick usedJoystick = SECOND_JOYSTICK;
+		// bindings...
+
+		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
+		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.F));
+		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.E));
+		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.D));
+
+		usedJoystick.B.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
+
+		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
+		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
+
+		usedJoystick.START.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
+	}
+
+	private static void thirdJoystickButtons(Robot robot) {
+		SmartJoystick usedJoystick = THIRD_JOYSTICK;
+		// bindings...
+		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.INTAKE));
+		usedJoystick.X.onTrue(robot.getSuperstructureRobot().setState(RobotState.ARM_INTAKE));
+		usedJoystick.Y.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_ARM_TO_SHOOTER));
+		usedJoystick.B.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_SHOOTER_TO_ARM));
+		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructureRobot().setState(RobotState.AMP));
+		usedJoystick.POV_RIGHT.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_AMP));
+		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm());
+		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2));
+	}
+
+	private static void fourthJoystickButtons(Robot robot) {
+		SmartJoystick usedJoystick = FOURTH_JOYSTICK;
+		// bindings...
+
 		usedJoystick.B.onTrue(new InstantCommand(() -> robot.getPoseEstimator().resetPose(new Pose2d(5, 5, new Rotation2d()))));
 
-//		usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheelsInX());
+		// usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheelsInX());
 		usedJoystick.X.whileTrue(robot.getSwerve().getCommandsBuilder().pointWheels(Rotation2d.fromDegrees(90), true));
 
 		usedJoystick.POV_UP.whileTrue(robot.getSwerve().getCommandsBuilder().turnToHeading(Rotation2d.fromDegrees(180)));
@@ -62,9 +154,11 @@ public class JoysticksBindings {
 			robot.getSwerve()
 				.getCommandsBuilder()
 				.driveByState(
-					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
+					() -> new ChassisPowers(
+						usedJoystick.getAxisValue(Axis.LEFT_Y),
+						usedJoystick.getAxisValue(Axis.LEFT_X),
+						usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
+					),
 					SwerveState.DEFAULT_DRIVE.withAimAssist(AimAssist.REEF)
 				)
 		);
@@ -72,9 +166,11 @@ public class JoysticksBindings {
 			robot.getSwerve()
 				.getCommandsBuilder()
 				.driveByState(
-					() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-					() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-					() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
+					() -> new ChassisPowers(
+						usedJoystick.getAxisValue(Axis.LEFT_Y),
+						usedJoystick.getAxisValue(Axis.LEFT_X),
+						usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
+					),
 					SwerveState.DEFAULT_DRIVE.withDriveRelative(DriveRelative.ROBOT_RELATIVE).withAimAssist(AimAssist.BRANCH)
 				)
 		);
@@ -84,9 +180,11 @@ public class JoysticksBindings {
 				robot.getSwerve()
 					.getCommandsBuilder()
 					.driveByState(
-						() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-						() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-						() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
+						() -> new ChassisPowers(
+							usedJoystick.getAxisValue(Axis.LEFT_Y),
+							usedJoystick.getAxisValue(Axis.LEFT_X),
+							usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
+						),
 						() -> SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarRightRotateAxis())
 					)
 			);
@@ -95,23 +193,25 @@ public class JoysticksBindings {
 				robot.getSwerve()
 					.getCommandsBuilder()
 					.driveByState(
-						() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-						() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-						() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X),
+						() -> new ChassisPowers(
+							usedJoystick.getAxisValue(Axis.LEFT_Y),
+							usedJoystick.getAxisValue(Axis.LEFT_X),
+							usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
+						),
 						() -> SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarLeftRotateAxis())
 					)
 			);
 
-//		robot.getSwerve()
-//			.setDefaultCommand(
-//				robot.getSwerve()
-//					.getCommandsBuilder()
-//					.drive(
-//						() -> usedJoystick.getAxisValue(Axis.LEFT_Y),
-//						() -> usedJoystick.getAxisValue(Axis.LEFT_X),
-//						() -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
-//					)
-//			);
+		// robot.getSwerve()
+		// .setDefaultCommand(
+		// robot.getSwerve()
+		// .getCommandsBuilder()
+		// .drive(
+		// () -> usedJoystick.getAxisValue(Axis.LEFT_Y),
+		// () -> usedJoystick.getAxisValue(Axis.LEFT_X),
+		// () -> usedJoystick.getSensitiveAxisValue(Axis.RIGHT_X)
+		// )
+		// );
 
 		usedJoystick.BACK.whileTrue(
 			robot.getSwerve()
@@ -127,64 +227,22 @@ public class JoysticksBindings {
 		);
 	}
 
-	private static void secondJoystickButtons(Robot robot) {
-		SmartJoystick usedJoystick = SECOND_JOYSTICK;
+	private static void fifthJoystickButtons(Robot robot) {
+		SmartJoystick usedJoystick = FIFTH_JOYSTICK;
 		// bindings...
 		usedJoystick.A.whileTrue(robot.getSwerve().getCommandsBuilder().wheelRadiusCalibration());
 		usedJoystick.B.whileTrue(robot.getSwerve().getCommandsBuilder().steerCalibration(true, SysIdRoutine.Direction.kForward));
 		usedJoystick.Y.whileTrue(robot.getSwerve().getCommandsBuilder().driveCalibration(true, SysIdRoutine.Direction.kForward));
 
-		usedJoystick.POV_DOWN.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> 0.2, () -> 0, () -> 0));
-		usedJoystick.POV_LEFT.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> 0.5, () -> 0, () -> 0));
-		usedJoystick.POV_RIGHT.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> -0.2, () -> 0, () -> 0));
-		usedJoystick.POV_UP.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> -0.5, () -> 0, () -> 0));
-	}
-
-	private static void thirdJoystickButtons(Robot robot) {
-		SmartJoystick usedJoystick = THIRD_JOYSTICK;
-		// bindings...
-		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.INTAKE, usedJoystick));
-		usedJoystick.X.onTrue(robot.getSuperstructureRobot().setState(RobotState.ARM_INTAKE, usedJoystick));
-		usedJoystick.Y.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_ARM_TO_SHOOTER, usedJoystick));
-		usedJoystick.B.onTrue(robot.getSuperstructureRobot().setState(RobotState.TRANSFER_SHOOTER_TO_ARM, usedJoystick));
-		usedJoystick.POV_LEFT.onTrue(robot.getSuperstructureRobot().setState(RobotState.AMP, usedJoystick));
-		usedJoystick.POV_RIGHT.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_AMP, usedJoystick));
-		usedJoystick.POV_UP.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm(usedJoystick));
-		usedJoystick.POV_DOWN.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2, usedJoystick));
-	}
-
-	private static void fourthJoystickButtons(Robot robot) {
-		SmartJoystick usedJoystick = FOURTH_JOYSTICK;
-		// bindings...
-
-		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2, usedJoystick));
-		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm(usedJoystick));
-		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE, usedJoystick));
-	}
-
-	private static void fifthJoystickButtons(Robot robot) {
-		SmartJoystick usedJoystick = FIFTH_JOYSTICK;
-		// bindings...
-		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
-		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.F));
-		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.E));
-		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.D));
-
-		usedJoystick.B.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
-
-		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF, FOURTH_JOYSTICK));
-		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF, FOURTH_JOYSTICK));
-
-		usedJoystick.START.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE, FOURTH_JOYSTICK));
+		usedJoystick.POV_DOWN.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> new ChassisPowers(0.2, 0, 0)));
+		usedJoystick.POV_LEFT.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> new ChassisPowers(0.5, 0, 0)));
+		usedJoystick.POV_RIGHT.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> new ChassisPowers(-0.2, 0, 0)));
+		usedJoystick.POV_UP.whileTrue(robot.getSwerve().getCommandsBuilder().drive(() -> new ChassisPowers(-0.5, 0, 0)));
 	}
 
 	private static void sixthJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SIXTH_JOYSTICK;
 		// bindings...
-
-		usedJoystick.A.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
-		usedJoystick.B.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.B));
-		usedJoystick.X.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.C));
 	}
 
 }

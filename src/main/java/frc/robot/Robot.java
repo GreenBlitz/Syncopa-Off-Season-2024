@@ -47,12 +47,12 @@ import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristConstants;
 import frc.robot.subsystems.wrist.factory.WristFactory;
 import frc.robot.superstructure.StatesMotionPlanner;
+import frc.utils.battery.BatteryUtils;
 import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.robot.vision.sources.limelights.LimelightFactory;
 import frc.utils.auto.PathPlannerUtils;
-import frc.utils.battery.BatteryUtils;
 
 import java.util.Optional;
 
@@ -130,10 +130,9 @@ public class Robot {
 
 		swerve.setHeadingSupplier(() -> poseEstimator.getEstimatedPose().getRotation());
 		swerve.getStateHandler().setRobotPoseSupplier(poseEstimator::getEstimatedPose);
-		swerve.getStateHandler().setReedTranslationSupplier(() -> Optional.of(Field.getMiddleOfReefSide(CodeCode.reefSide).getTranslation()));
-		swerve.getStateHandler().setBranchTranslationSupplier(() -> Optional.of(Field.branchCool(CodeCode.reefSide, CodeCode.leftBrnach)));
-		swerve.getStateHandler()
-			.setFeederTranslationSupplier(() -> Optional.of(Field.getMiddleOfCoralStation(CodeCode.coralStationPosition).getTranslation()));
+		swerve.getStateHandler().setFeederSupplier(() -> Optional.of(CodeCode.coralStationPosition));
+		swerve.getStateHandler().setReefSideSupplier(() -> Optional.of(CodeCode.reefSide));
+		swerve.getStateHandler().setBranchSupplier(() -> Optional.of(Field.branchCool(CodeCode.reefSide, CodeCode.leftBrnach)));
 
 		this.superstructureFunny = new Superstructure(swerve, poseEstimator, multiAprilTagVisionSources);
 		this.superstructureRobot = new frc.robot.superstructure.Superstructure("Superstructure/", this);

@@ -1,5 +1,6 @@
 package frc.robot.subsystems.swerve.states;
 
+import frc.robot.Robot;
 import frc.robot.subsystems.swerve.states.aimassist.AimAssist;
 import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import org.littletonrobotics.junction.Logger;
@@ -78,7 +79,7 @@ public class SwerveState {
 
 	public SwerveState withLoopMode(LoopMode loopMode) {
 		SwerveState swerveState = new SwerveState(this);
-		swerveState.loopMode = loopMode;
+		swerveState.loopMode = Robot.ROBOT_TYPE.isSimulation() ? LoopMode.OPEN : loopMode;
 		return swerveState;
 	}
 

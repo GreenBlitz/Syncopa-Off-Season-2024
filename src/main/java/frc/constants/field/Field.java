@@ -7,7 +7,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.wpilibj.DriverStation;
-import frc.constants.field.enums.*;
+import frc.constants.field.enums.CagePosition;
+import frc.constants.field.enums.CoralStationPosition;
+import frc.constants.field.enums.ReefBranch;
+import frc.constants.field.enums.ReefSide;
 import frc.utils.DriverStationUtils;
 
 import frc.utils.math.AngleTransform;
@@ -68,7 +71,6 @@ public class Field {
 
 	public static final double WIDTH_OF_FEEDER_METERS = 1.9304;
 
-
 	public static Translation2d getMiddleOfReef() {
 		return getAllianceRelative(MIDDLE_OF_REEF, true, false);
 	}
@@ -93,7 +95,6 @@ public class Field {
 		return getAllianceRelative(MIDDLE_OF_CORAL_STATIONS[coralStationPosition.getIndex()], true, true, AngleTransform.INVERT);
 	}
 
-
 	private static Pose2d getAllianceRelative(Pose2d pose, boolean mirrorX, boolean mirrorY, AngleTransform angleTransform) {
 		return isFieldConventionAlliance() ? pose : FieldMath.mirror(pose, mirrorX, mirrorY, angleTransform);
 	}
@@ -115,15 +116,15 @@ public class Field {
 		return mirrorAngle ? new Pose3d(translation3d, getAllianceRelative(pose.getRotation())) : new Pose3d(translation3d, pose.getRotation());
 	}
 
-	public static Translation2d branchCool(ReefSide side, boolean left) {
-		return getCoralPlacement(switch (side) {
+	public static ReefBranch branchCool(ReefSide side, boolean left) {
+		return switch (side) {
 			case A -> left ? ReefBranch.A : ReefBranch.B;
 			case B -> left ? ReefBranch.C : ReefBranch.D;
 			case C -> left ? ReefBranch.F : ReefBranch.E;
 			case D -> left ? ReefBranch.H : ReefBranch.G;
 			case E -> left ? ReefBranch.J : ReefBranch.I;
 			case F -> left ? ReefBranch.K : ReefBranch.L;
-		});
+		};
 	}
 
 }

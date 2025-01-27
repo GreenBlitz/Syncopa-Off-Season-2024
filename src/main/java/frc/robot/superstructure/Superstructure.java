@@ -245,25 +245,25 @@ public class Superstructure extends GBSubsystem {
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),
-					flywheelStateHandler.setState(FlywheelState.FEEDER)
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
 				).until(() -> robot.getPivot().isAtPosition(PivotState.FEEDER.getTargetPosition(), Tolerances.PIVOT_POSITION)),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.OUTTAKE),
 					intakeStateHandler.setState(IntakeState.OUTTAKE),
-					flywheelStateHandler.setState(FlywheelState.FEEDER)
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
 				).until(this::isObjectInFunnel),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.OUTTAKE),
 					intakeStateHandler.setState(IntakeState.OUTTAKE),
-					flywheelStateHandler.setState(FlywheelState.FEEDER)
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
 				).until(() -> !isObjectInFunnel()),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),
 					intakeStateHandler.setState(IntakeState.INTAKE_WITH_FUNNEL),
-					flywheelStateHandler.setState(FlywheelState.FEEDER)
+					flywheelStateHandler.setState(FlywheelState.DEFAULT)
 				).until(this::isObjectInFunnel)
 			),
 			rollerStateHandler.setState(RollerState.STOP),

@@ -91,7 +91,7 @@ public class SwerveStateHandler {
 	private ChassisSpeeds handleReefAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
 		return AimAssistMath
 			.getRotationAssistedChassisSpeeds(chassisSpeeds, robotHeading,
-					FieldMath.mirrorAngle(FieldMath.getRelativeTranslation(Field.getMiddleOfReef() , reefTranslationSupplier.get().get()).getAngle(), AngleTransform.KEEP), swerveConstants);
+					FieldMath.getRelativeTranslation(Field.getMiddleOfReef() , reefTranslationSupplier.get().get()).getAngle(), swerveConstants);
 	}
 
 	private ChassisSpeeds handleFeederAimAssist(ChassisSpeeds chassisSpeeds, Rotation2d robotHeading) {
@@ -105,6 +105,7 @@ public class SwerveStateHandler {
 		Translation2d branchTranslation,
 		SwerveState swerveState
 	) {
+		chassisSpeeds = handleReefAimAssist(chassisSpeeds, robotPose.getRotation());
 		return AimAssistMath.getObjectAssistedSpeeds(chassisSpeeds, robotPose, branchTranslation, swerveConstants, swerveState);
 	}
 

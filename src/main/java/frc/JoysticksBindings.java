@@ -95,6 +95,11 @@ public class JoysticksBindings {
 		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
 	}
 
+	private static boolean idleShouldWork(Robot robot) {
+		return robot.getSuperstructureRobot().getCurrentState() != RobotState.FEED
+			&& robot.getSuperstructureRobot().getCurrentState() != RobotState.TRANSFER_SHOOTER_TO_ARM;
+	}
+
 	private static void secondJoystickButtons(Robot robot) {
 		SmartJoystick usedJoystick = SECOND_JOYSTICK;
 		// bindings...
@@ -109,7 +114,8 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
 		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
 
-		usedJoystick.START.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
+		usedJoystick.START.and(() -> idleShouldWork(robot)).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
+		usedJoystick.START.and(usedJoystick.BACK).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
 	}
 
 	private static void thirdJoystickButtons(Robot robot) {

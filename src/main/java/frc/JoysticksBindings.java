@@ -111,15 +111,19 @@ public class JoysticksBindings {
 		SmartJoystick usedJoystick = SECOND_JOYSTICK;
 		// bindings...
 
-		usedJoystick.POV_DOWN.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
-		usedJoystick.POV_LEFT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.F));
-		usedJoystick.POV_RIGHT.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.E));
-		usedJoystick.POV_UP.onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.D));
+		usedJoystick.POV_LEFT.and((usedJoystick.L1).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.E)));
+		usedJoystick.POV_LEFT.and(() -> !usedJoystick.L1.getAsBoolean()).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.F));
+		usedJoystick.POV_RIGHT.and((usedJoystick.L1)).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.C));
+		usedJoystick.POV_RIGHT.and(() -> !usedJoystick.L1.getAsBoolean()).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.B));
+		usedJoystick.POV_UP.and(usedJoystick.L1).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.D));
+		usedJoystick.POV_UP.and(() -> !usedJoystick.L1.getAsBoolean()).onTrue(new InstantCommand(() -> CodeCode.reefSide = ReefSide.A));
 
-		usedJoystick.B.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
+		usedJoystick.R1.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
 
-		usedJoystick.R1.onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
-		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(
+				robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(
+				robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
 
 		usedJoystick.START.and(() -> idleShouldWork(robot)).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
 		usedJoystick.START.and(usedJoystick.BACK).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));

@@ -217,20 +217,10 @@ public class Swerve extends GBSubsystem {
 		if (fieldRelativeSpeeds.vyMetersPerSecond == 0) {
 			return fieldRelativeSpeeds.vxMetersPerSecond > 0 ? new Rotation2d() : MathConstants.HALF_CIRCLE;
 		}
-
-		double xDivY = Math.abs(fieldRelativeSpeeds.vyMetersPerSecond) / Math.abs(fieldRelativeSpeeds.vxMetersPerSecond);
-		Rotation2d angle = FieldMath.mirrorAngle(Rotation2d.fromRadians(Math.atan(xDivY)), AngleTransform.MIRROR_X);
-
-		if (fieldRelativeSpeeds.vxMetersPerSecond > 0 && fieldRelativeSpeeds.vyMetersPerSecond < 0) {
-			return FieldMath.mirrorAngle(angle, AngleTransform.MIRROR_X);
-		}
-		else if (fieldRelativeSpeeds.vxMetersPerSecond < 0 && fieldRelativeSpeeds.vyMetersPerSecond > 0) {
-			return FieldMath.mirrorAngle(angle, AngleTransform.MIRROR_Y);
-		}
-		else if (fieldRelativeSpeeds.vxMetersPerSecond < 0 && fieldRelativeSpeeds.vyMetersPerSecond < 0) {
-			return FieldMath.mirrorAngle(angle, AngleTransform.INVERT);
-		}
-
+		Rotation2d angle = FieldMath.mirrorAngle(
+				Rotation2d.fromRadians(Math.atan2(fieldRelativeSpeeds.vyMetersPerSecond, fieldRelativeSpeeds.vxMetersPerSecond)),
+				AngleTransform.MIRROR_X
+		);
 		return FieldMath.mirrorAngle(angle, AngleTransform.INVERT);
 	}
 

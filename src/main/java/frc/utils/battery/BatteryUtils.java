@@ -1,9 +1,7 @@
 package frc.utils.battery;
 
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.IDs;
 import org.littletonrobotics.junction.Logger;
 
 public class BatteryUtils {
@@ -16,7 +14,7 @@ public class BatteryUtils {
 
 
 	public static double getTotalCurrent() {
-		return 999;//powerDistribution.getTotalCurrent();
+		return 999;// powerDistribution.getTotalCurrent();
 	}
 
 	public static double getCurrentVoltage() {

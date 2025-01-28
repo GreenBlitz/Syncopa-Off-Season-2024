@@ -23,8 +23,6 @@ import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import frc.robot.subsystems.swerve.states.heading.HeadingStabilizer;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.auto.PathPlannerUtils;
-import frc.utils.math.AngleTransform;
-import frc.utils.math.FieldMath;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -249,7 +247,7 @@ public class Swerve extends GBSubsystem {
 	}
 
 	protected void driveByDriversTargetsPowers(SwerveState swerveState) {
-		if (savedState != null){
+		if (savedState != null) {
 			driveByState(driversPowerInputs, savedState);
 		} else {
 			driveByState(driversPowerInputs, swerveState);

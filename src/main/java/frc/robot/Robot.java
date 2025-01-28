@@ -16,26 +16,16 @@ import frc.robot.subsystems.intake.factory.IntakeFactory;
 import frc.robot.subsystems.elbow.Elbow;
 import frc.robot.subsystems.elbow.ElbowConstants;
 import frc.robot.subsystems.elbow.factory.ElbowFactory;
-import frc.robot.subsystems.flywheel.FlyWheelConstants;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.factory.FlywheelFactory;
-import frc.robot.subsystems.lifter.Lifter;
-import frc.robot.subsystems.lifter.LifterConstants;
-import frc.robot.subsystems.lifter.factory.LifterFactory;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.subsystems.pivot.factory.PivotFactory;
 import frc.robot.subsystems.roller.Roller;
 import frc.robot.subsystems.roller.RollerConstants;
 import frc.robot.subsystems.roller.factory.RollerFactory;
-import frc.robot.subsystems.solenoid.Solenoid;
-import frc.robot.subsystems.solenoid.SolenoidConstants;
-import frc.robot.subsystems.solenoid.factory.SolenoidFactory;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
 import frc.robot.hardware.interfaces.IGyro;
 import frc.robot.hardware.phoenix6.BusChain;
-import frc.robot.autonomous.AutonomousConstants;
 import frc.constants.VisionConstants;
 import frc.robot.poseestimator.WPILibPoseEstimator.WPILibPoseEstimatorWrapper;
 import frc.robot.structures.Superstructure;
@@ -52,7 +42,6 @@ import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.robot.vision.sources.limelights.LimelightFactory;
-import frc.utils.auto.PathPlannerUtils;
 
 import java.util.Optional;
 
@@ -66,13 +55,13 @@ public class Robot {
 	public static RobotType ROBOT_TYPE = RobotType.determineRobotType();
 
 	private final Swerve swerve;
-	private final Solenoid solenoid;
+//	private final Solenoid solenoid;
 	private final Funnel funnel;
 	private final Intake intake;
 	private final Elbow elbow;
-	private final Flywheel flywheel;
+//	private final Flywheel flywheel;
 	private final Pivot pivot;
-	private final Lifter lifter;
+//	private final Lifter lifter;
 	private final Roller roller;
 	private final Wrist wrist;
 
@@ -94,16 +83,16 @@ public class Robot {
 			GyroFactory.createSignals(gyro)
 		);
 
-		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
+//		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
 		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
-		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
+//		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
 		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
 		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
 		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
 		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
 		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
-		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
-		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
+//		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
 		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
 		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
 		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
@@ -178,9 +167,9 @@ public class Robot {
 		return poseEstimator;
 	}
 
-	public Solenoid getSolenoid() {
-		return solenoid;
-	}
+//	public Solenoid getSolenoid() {
+//		return solenoid;
+//	}
 
 	public Funnel getFunnel() {
 		return funnel;
@@ -194,17 +183,17 @@ public class Robot {
 		return elbow;
 	}
 
-	public Flywheel getFlywheel() {
-		return flywheel;
-	}
+//	public Flywheel getFlywheel() {
+//		return flywheel;
+//	}
 
 	public Pivot getPivot() {
 		return pivot;
 	}
 
-	public Lifter getLifter() {
-		return lifter;
-	}
+//	public Lifter getLifter() {
+//		return lifter;
+//	}
 
 	public Roller getRoller() {
 		return roller;

@@ -59,7 +59,7 @@ public class Superstructure extends GBSubsystem {
 		this.robot = robot;
 		this.swerve = robot.getSwerve();
 		this.elbowStateHandler = new ElbowStateHandler(robot.getElbow());
-		this.flywheelStateHandler = new FlywheelStateHandler(robot.getFlywheel());
+		this.flywheelStateHandler = new FlywheelStateHandler(null);
 		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
 		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
 		this.pivotStateHandler = new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getEstimatedPose()));
@@ -106,27 +106,27 @@ public class Superstructure extends GBSubsystem {
 	private boolean isReadyToShootClose() {
 		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PRE_SPEAKER.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
-		boolean isFlywheelReady = robot.getFlywheel()
-			.isAtVelocities(
-				FlywheelState.PRE_SPEAKER.getRightVelocity(),
-				FlywheelState.PRE_SPEAKER.getLeftVelocity(),
-				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
-			);
+//		boolean isFlywheelReady = robot.getFlywheel()
+//			.isAtVelocities(
+//				FlywheelState.PRE_SPEAKER.getRightVelocity(),
+//				FlywheelState.PRE_SPEAKER.getLeftVelocity(),
+//				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+//			);
 
-		return isFlywheelReady && isPivotReady;
+		return false; // isFlywheelReady && isPivotReady;
 	}
 
 	private boolean isReadyToPass() {
 		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
-		boolean isFlywheelReady = robot.getFlywheel()
-			.isAtVelocities(
-				FlywheelState.PASSING.getRightVelocity(),
-				FlywheelState.PASSING.getLeftVelocity(),
-				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
-			);
+//		boolean isFlywheelReady = robot.getFlywheel()
+//			.isAtVelocities(
+//				FlywheelState.PASSING.getRightVelocity(),
+//				FlywheelState.PASSING.getLeftVelocity(),
+//				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+//			);
 
-		return isFlywheelReady && isPivotReady;
+		return false;// isFlywheelReady && isPivotReady;
 	}
 
 	private boolean isReadyToShootInterpolation() {
@@ -136,18 +136,18 @@ public class Superstructure extends GBSubsystem {
 		boolean isPivotReady = robot.getPivot()
 			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
 
-		boolean isFlywheelReady = robot.getFlywheel()
-			.isAtVelocities(
-				FlywheelState.PRE_SPEAKER.getRightVelocity(),
-				FlywheelState.PRE_SPEAKER.getLeftVelocity(),
-				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
-			);
+//		boolean isFlywheelReady = robot.getFlywheel()
+//			.isAtVelocities(
+//				FlywheelState.PRE_SPEAKER.getRightVelocity(),
+//				FlywheelState.PRE_SPEAKER.getLeftVelocity(),
+//				Tolerances.FLYWHEEL_VELOCITY_PER_SECOND
+//			);
 
 		Rotation2d angleToSpeaker = new Rotation2d();// PoseMath.getRelativeTranslation(robotTranslation2d,
 														// Field.getSpeaker().toTranslation2d()).getAngle();
 		boolean isSwerveReady = swerve.isAtHeading(angleToSpeaker, Tolerances.SWERVE_HEADING, Tolerances.ROTATION_VELOCITY_DEADBAND);
 
-		return isFlywheelReady && isPivotReady && isSwerveReady;
+		return false;// isFlywheelReady && isPivotReady && isSwerveReady;
 	}
 
 	private Command setCurrentStateName(RobotState state) {

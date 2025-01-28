@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.constants.field.enums.ReefSide;
 import frc.joysticks.Axis;
@@ -94,12 +93,19 @@ public class JoysticksBindings {
 		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm());
 		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
 
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER, 0.15).whileTrue(robot.getSwerve().setSavedState(() ->
-			SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarLeftRotateAxis()))
-		).onFalse(robot.getSwerve().setSavedState(() -> null));;
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER, 0.15).whileTrue(robot.getSwerve().setSavedState(() ->
-			SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarRightRotateAxis()))
-		).onFalse(robot.getSwerve().setSavedState(() -> null));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER, 0.15)
+			.whileTrue(
+				robot.getSwerve()
+					.setSavedState(() -> SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarLeftRotateAxis()))
+			)
+			.onFalse(robot.getSwerve().setSavedState(() -> null));
+		;
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER, 0.15)
+			.whileTrue(
+				robot.getSwerve()
+					.setSavedState(() -> SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarRightRotateAxis()))
+			)
+			.onFalse(robot.getSwerve().setSavedState(() -> null));
 	}
 
 	private static boolean idleShouldWork(Robot robot) {
@@ -120,10 +126,8 @@ public class JoysticksBindings {
 
 		usedJoystick.R1.toggleOnTrue(new InstantCommand(() -> CodeCode.leftBrnach = !CodeCode.leftBrnach));
 
-		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(
-				robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
-		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(
-				robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER).onTrue(robot.getSuperstructureRobot().setState(RobotState.PRE_SCORE_REEF));
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER).onTrue(robot.getSuperstructureRobot().setState(RobotState.ALIGN_REEF));
 
 		usedJoystick.START.and(() -> idleShouldWork(robot)).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
 		usedJoystick.START.and(usedJoystick.BACK).onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));

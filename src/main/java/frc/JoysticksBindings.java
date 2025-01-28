@@ -50,9 +50,9 @@ public class JoysticksBindings {
 		fifthJoystickButtons(robot);
 		sixthJoystickButtons(robot);
 
-		Trigger isObjectIn = new Trigger(() -> robot.getSuperstructureRobot().isObjectIn());
-		Trigger isTimeToRumble = new Trigger(JoysticksBindings::isTimeToRumble);
-		isObjectIn.and(isTimeToRumble).onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
+//		Trigger isObjectIn = new Trigger(() -> robot.getSuperstructureRobot().isObjectIn());
+//		Trigger isTimeToRumble = new Trigger(JoysticksBindings::isTimeToRumble);
+//		isObjectIn.and(isTimeToRumble).onTrue(noteInRumble(MAIN_JOYSTICK).alongWith(noteInRumble(SECOND_JOYSTICK)));
 	}
 
 	public static void setDriversInputsToSwerve(Swerve swerve) {

@@ -93,6 +93,7 @@ public class Robot {
 			gyro,
 			GyroFactory.createSignals(gyro)
 		);
+		ROBOT_TYPE = RobotType.REAL;
 
 		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
 		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
@@ -108,6 +109,8 @@ public class Robot {
 		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
 		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
 		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
+		ROBOT_TYPE = RobotType.SIMULATION;
+
 
 		this.poseEstimator = new WPILibPoseEstimatorWrapper(
 			"PoseEstimator/",
@@ -143,7 +146,7 @@ public class Robot {
 
 	public void periodic() {
 		superstructureFunny.periodic();
-		superstructureRobot.periodic();
+		superstructureRobot.logStatus();
 		BatteryUtils.logStatus();
 		BusChain.logChainsStatuses();
 		multiAprilTagVisionSources.log();

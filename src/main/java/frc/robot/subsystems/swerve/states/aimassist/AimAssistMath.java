@@ -55,14 +55,14 @@ public class AimAssistMath {
 			case ROBOT_RELATIVE:
 				new ChassisSpeeds(speeds.vxMetersPerSecond, pidHorizontalToObjectOutputVelocityMetersPerSecond, speeds.omegaRadiansPerSecond);
 
-			case FIELD_RELATIVE:
-				ChassisSpeeds robotRelativeSpeeds = SwerveMath.fieldToRobotRelativeSpeeds(speeds, targetAngle);
+			case ALLIANCE_RELATIVE:
+				ChassisSpeeds robotRelativeSpeeds = SwerveMath.allianceToRobotRelativeSpeeds(speeds, targetAngle);
 				ChassisSpeeds assistedSpeed = new ChassisSpeeds(
 					robotRelativeSpeeds.vxMetersPerSecond,
 					pidHorizontalToObjectOutputVelocityMetersPerSecond,
 					robotRelativeSpeeds.omegaRadiansPerSecond
 				);
-				yield SwerveMath.robotToFieldRelativeSpeeds(assistedSpeed, targetAngle);
+				yield SwerveMath.robotToAllianceRelativeSpeeds(assistedSpeed, targetAngle);
 		};
 	}
 

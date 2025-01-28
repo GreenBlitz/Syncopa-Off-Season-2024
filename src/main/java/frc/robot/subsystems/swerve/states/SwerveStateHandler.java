@@ -138,7 +138,8 @@ public class SwerveStateHandler {
 	}
 
 	public RotateAxis getFarRotateAxis(boolean isLeft) {
-		Rotation2d currentAllianceRelativeHeading = swerve.getAllianceRelativeHeading();
+		Rotation2d currentAllianceRelativeHeading = swerve.getDriveVelocityAllianceRelativeHeading();
+		System.out.println(swerve.getDriveVelocityAllianceRelativeHeading());
 		// -45 <= x <= 45
 		if (Math.abs(currentAllianceRelativeHeading.getDegrees()) <= MathConstants.EIGHTH_CIRCLE.getDegrees()) {
 			return isLeft ? RotateAxis.FRONT_LEFT_MODULE : RotateAxis.FRONT_RIGHT_MODULE;

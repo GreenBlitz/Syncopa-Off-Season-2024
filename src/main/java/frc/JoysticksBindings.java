@@ -93,6 +93,13 @@ public class JoysticksBindings {
 		usedJoystick.L1.onTrue(robot.getSuperstructureRobot().setState(RobotState.SHOOT_L2));
 		usedJoystick.R1.onTrue(robot.getStatesMotionPlanner().feederIntakeToArm());
 		usedJoystick.A.onTrue(robot.getSuperstructureRobot().setState(RobotState.IDLE));
+
+		usedJoystick.getAxisAsButton(Axis.LEFT_TRIGGER, 0.15).whileTrue(robot.getSwerve().setSavedState(() ->
+			SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarLeftRotateAxis()))
+		).onFalse(robot.getSwerve().setSavedState(() -> null));;
+		usedJoystick.getAxisAsButton(Axis.RIGHT_TRIGGER, 0.15).whileTrue(robot.getSwerve().setSavedState(() ->
+			SwerveState.DEFAULT_DRIVE.withRotateAxis(robot.getSwerve().getStateHandler().getFarRightRotateAxis()))
+		).onFalse(robot.getSwerve().setSavedState(() -> null));
 	}
 
 	private static boolean idleShouldWork(Robot robot) {

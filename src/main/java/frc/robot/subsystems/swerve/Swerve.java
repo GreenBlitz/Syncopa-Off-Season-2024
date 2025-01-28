@@ -8,6 +8,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.constants.MathConstants;
 import frc.constants.field.Field;
 import frc.robot.hardware.empties.EmptyGyro;
@@ -21,6 +23,8 @@ import frc.robot.subsystems.swerve.states.heading.HeadingControl;
 import frc.robot.subsystems.swerve.states.heading.HeadingStabilizer;
 import frc.robot.subsystems.swerve.states.SwerveState;
 import frc.utils.auto.PathPlannerUtils;
+import frc.utils.math.AngleTransform;
+import frc.utils.math.FieldMath;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -40,6 +44,7 @@ public class Swerve extends GBSubsystem {
 	private final SwerveStateHandler stateHandler;
 
 	private SwerveState currentState;
+	private SwerveState savedState = null;
 	private Supplier<Rotation2d> headingSupplier;
 	private ChassisPowers driversPowerInputs;
 
@@ -109,6 +114,10 @@ public class Swerve extends GBSubsystem {
 		this.driversPowerInputs = powers;
 	}
 
+	public Command setSavedState(Supplier<SwerveState> savedState) {
+		return new InstantCommand(() -> this.savedState = savedState.get());
+	}
+
 	public void setHeading(Rotation2d heading) {
 		gyro.setYaw(heading);
 		gyro.updateInputs(gyroSignals.yawSignal());
@@ -130,7 +139,7 @@ public class Swerve extends GBSubsystem {
 
 		currentState.log(constants.stateLogPath());
 
-		ChassisSpeeds fieldRelativeSpeeds = getFieldRelativeVelocity();
+		ChassisSpeeds fieldRelativeSpeeds = getAllianceRelativeVelocity();
 		Logger.recordOutput(constants.velocityLogPath() + "/Rotation", fieldRelativeSpeeds.omegaRadiansPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/X", fieldRelativeSpeeds.vxMetersPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/Y", fieldRelativeSpeeds.vyMetersPerSecond);
@@ -186,15 +195,43 @@ public class Swerve extends GBSubsystem {
 		return kinematics.toChassisSpeeds(modules.getCurrentStates());
 	}
 
-	public ChassisSpeeds getFieldRelativeVelocity() {
-		return SwerveMath.robotToFieldRelativeSpeeds(getRobotRelativeVelocity(), getAllianceRelativeHeading());
+	public ChassisSpeeds getAllianceRelativeVelocity() {
+		return SwerveMath.robotToAllianceRelativeSpeeds(getRobotRelativeVelocity(), getAllianceRelativeHeading());
 	}
 
 	private ChassisSpeeds getDriveModeRelativeSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
 		if (swerveState.getDriveMode() == DriveRelative.ROBOT_RELATIVE) {
 			return speeds;
 		}
-		return SwerveMath.fieldToRobotRelativeSpeeds(speeds, getAllianceRelativeHeading());
+		return SwerveMath.allianceToRobotRelativeSpeeds(speeds, getAllianceRelativeHeading());
+	}
+
+	public Rotation2d getDriveVelocityAllianceRelativeHeading() {
+		ChassisSpeeds fieldRelativeSpeeds = getAllianceRelativeVelocity();
+		if (SwerveMath.isStill(fieldRelativeSpeeds)) {
+			return new Rotation2d();
+		}
+		if (fieldRelativeSpeeds.vxMetersPerSecond == 0) {
+			return fieldRelativeSpeeds.vyMetersPerSecond > 0 ? MathConstants.QUARTER_CIRCLE : MathConstants.QUARTER_CIRCLE.unaryMinus();
+		}
+		if (fieldRelativeSpeeds.vyMetersPerSecond == 0) {
+			return fieldRelativeSpeeds.vxMetersPerSecond > 0 ? new Rotation2d() : MathConstants.HALF_CIRCLE;
+		}
+
+		double xDivY = Math.abs(fieldRelativeSpeeds.vyMetersPerSecond) / Math.abs(fieldRelativeSpeeds.vxMetersPerSecond);
+		Rotation2d angle = FieldMath.mirrorAngle(Rotation2d.fromRadians(Math.atan(xDivY)), AngleTransform.MIRROR_X);
+
+		if (fieldRelativeSpeeds.vxMetersPerSecond > 0 && fieldRelativeSpeeds.vyMetersPerSecond < 0) {
+			return FieldMath.mirrorAngle(angle, AngleTransform.MIRROR_X);
+		}
+		else if (fieldRelativeSpeeds.vxMetersPerSecond < 0 && fieldRelativeSpeeds.vyMetersPerSecond > 0) {
+			return FieldMath.mirrorAngle(angle, AngleTransform.MIRROR_Y);
+		}
+		else if (fieldRelativeSpeeds.vxMetersPerSecond < 0 && fieldRelativeSpeeds.vyMetersPerSecond < 0) {
+			return FieldMath.mirrorAngle(angle, AngleTransform.INVERT);
+		}
+
+		return FieldMath.mirrorAngle(angle, AngleTransform.INVERT);
 	}
 
 
@@ -226,7 +263,11 @@ public class Swerve extends GBSubsystem {
 	}
 
 	protected void driveByDriversTargetsPowers(SwerveState swerveState) {
-		driveByState(driversPowerInputs, swerveState);
+		if (savedState != null){
+			driveByState(driversPowerInputs, savedState);
+		} else {
+			driveByState(driversPowerInputs, swerveState);
+		}
 	}
 
 	protected void driveByState(ChassisPowers powers, SwerveState swerveState) {

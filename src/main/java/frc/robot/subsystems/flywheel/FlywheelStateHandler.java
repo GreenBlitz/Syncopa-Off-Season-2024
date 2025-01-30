@@ -1,6 +1,7 @@
 package frc.robot.subsystems.flywheel;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class FlywheelStateHandler {
 
@@ -11,10 +12,11 @@ public class FlywheelStateHandler {
 	}
 
 	public Command setState(FlywheelState flywheelState) {
-		if (flywheelState.getRightVelocity().getRotations() == 0) {
-			return flywheel.getCommandsBuilder().stop();
-		}
-		return flywheel.getCommandsBuilder().setVelocities(flywheelState.getRightVelocity(), flywheelState.getLeftVelocity());
+		return new InstantCommand();
+//		if (flywheelState.getRightVelocity().getRotations() == 0) {
+//			return flywheel.getCommandsBuilder().stop();
+//		}
+//		return flywheel.getCommandsBuilder().setVelocities(flywheelState.getRightVelocity(), flywheelState.getLeftVelocity());
 	}
 
 }

@@ -4,9 +4,12 @@ import com.pathplanner.lib.config.RobotConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.constants.MathConstants;
 import frc.constants.field.Field;
 import frc.robot.hardware.empties.EmptyGyro;
@@ -29,7 +32,6 @@ import java.util.function.Supplier;
 public class Swerve extends GBSubsystem {
 
 	private final SwerveConstants constants;
-	private final double driveRadiusMeters;
 	private final Modules modules;
 	private final IGyro gyro;
 	private final GyroSignals gyroSignals;
@@ -40,14 +42,16 @@ public class Swerve extends GBSubsystem {
 	private final SwerveStateHandler stateHandler;
 
 	private SwerveState currentState;
+	private SwerveState savedState = null;
 	private Supplier<Rotation2d> headingSupplier;
+	private ChassisPowers driversPowerInputs;
 
 	public Swerve(SwerveConstants constants, Modules modules, IGyro gyro, GyroSignals gyroSignals) {
 		super(constants.logPath());
 		this.currentState = new SwerveState(SwerveState.DEFAULT_DRIVE);
+		this.driversPowerInputs = new ChassisPowers(0, 0, 0);
 
 		this.constants = constants;
-		this.driveRadiusMeters = SwerveMath.calculateDriveRadiusMeters(modules.getModulePositionsFromCenterMeters());
 		this.modules = modules;
 		this.gyro = gyro;
 		this.gyroSignals = gyroSignals;
@@ -59,6 +63,7 @@ public class Swerve extends GBSubsystem {
 		this.commandsBuilder = new SwerveCommandsBuilder(this);
 
 		update();
+		setDefaultCommand(commandsBuilder.driveByDriversInputs(SwerveState.DEFAULT_DRIVE));
 	}
 
 	public String getLogPath() {
@@ -103,6 +108,14 @@ public class Swerve extends GBSubsystem {
 		this.headingSupplier = headingSupplier;
 	}
 
+	public void setDriversPowerInputs(ChassisPowers powers) {
+		this.driversPowerInputs = powers;
+	}
+
+	public Command setSavedState(Supplier<SwerveState> savedState) {
+		return new InstantCommand(() -> this.savedState = savedState.get());
+	}
+
 	public void setHeading(Rotation2d heading) {
 		gyro.setYaw(heading);
 		gyro.updateInputs(gyroSignals.yawSignal());
@@ -124,7 +137,7 @@ public class Swerve extends GBSubsystem {
 
 		currentState.log(constants.stateLogPath());
 
-		ChassisSpeeds fieldRelativeSpeeds = getFieldRelativeVelocity();
+		ChassisSpeeds fieldRelativeSpeeds = getAllianceRelativeVelocity();
 		Logger.recordOutput(constants.velocityLogPath() + "/Rotation", fieldRelativeSpeeds.omegaRadiansPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/X", fieldRelativeSpeeds.vxMetersPerSecond);
 		Logger.recordOutput(constants.velocityLogPath() + "/Y", fieldRelativeSpeeds.vyMetersPerSecond);
@@ -153,7 +166,12 @@ public class Swerve extends GBSubsystem {
 	}
 
 	public double getDriveRadiusMeters() {
-		return driveRadiusMeters;
+		Translation2d[] modulePositionsFromCenterMeters = modules.getModulePositionsFromCenterMeters();
+		double sum = 0;
+		for (Translation2d modulePositionFromCenterMeters : modulePositionsFromCenterMeters) {
+			sum += modulePositionFromCenterMeters.getDistance(new Translation2d());
+		}
+		return sum / modulePositionsFromCenterMeters.length;
 	}
 
 	public Rotation2d getGyroAbsoluteYaw() {
@@ -175,15 +193,29 @@ public class Swerve extends GBSubsystem {
 		return kinematics.toChassisSpeeds(modules.getCurrentStates());
 	}
 
-	public ChassisSpeeds getFieldRelativeVelocity() {
-		return SwerveMath.robotToFieldRelativeSpeeds(getRobotRelativeVelocity(), getAllianceRelativeHeading());
+	public ChassisSpeeds getAllianceRelativeVelocity() {
+		return SwerveMath.robotToAllianceRelativeSpeeds(getRobotRelativeVelocity(), getAllianceRelativeHeading());
 	}
 
 	private ChassisSpeeds getDriveModeRelativeSpeeds(ChassisSpeeds speeds, SwerveState swerveState) {
 		if (swerveState.getDriveMode() == DriveRelative.ROBOT_RELATIVE) {
 			return speeds;
 		}
-		return SwerveMath.fieldToRobotRelativeSpeeds(speeds, getAllianceRelativeHeading());
+		return SwerveMath.allianceToRobotRelativeSpeeds(speeds, getAllianceRelativeHeading());
+	}
+
+	public Rotation2d getDriveVelocityAllianceRelativeHeading() {
+		ChassisSpeeds fieldRelativeSpeeds = getAllianceRelativeVelocity();
+		if (SwerveMath.isStill(fieldRelativeSpeeds)) {
+			return new Rotation2d();
+		}
+		if (fieldRelativeSpeeds.vxMetersPerSecond == 0) {
+			return fieldRelativeSpeeds.vyMetersPerSecond > 0 ? MathConstants.QUARTER_CIRCLE : MathConstants.QUARTER_CIRCLE.unaryMinus();
+		}
+		if (fieldRelativeSpeeds.vyMetersPerSecond == 0) {
+			return fieldRelativeSpeeds.vxMetersPerSecond > 0 ? new Rotation2d() : MathConstants.HALF_CIRCLE;
+		}
+		return Rotation2d.fromRadians(Math.atan2(fieldRelativeSpeeds.vyMetersPerSecond, fieldRelativeSpeeds.vxMetersPerSecond));
 	}
 
 
@@ -214,9 +246,16 @@ public class Swerve extends GBSubsystem {
 		driveByState(targetSpeeds, swerveState);
 	}
 
+	protected void driveByDriversTargetsPowers(SwerveState swerveState) {
+		if (savedState != null) {
+			driveByState(driversPowerInputs, savedState);
+		} else {
+			driveByState(driversPowerInputs, swerveState);
+		}
+	}
 
-	protected void driveByState(double xPower, double yPower, double rotationPower, SwerveState swerveState) {
-		ChassisSpeeds speedsFromPowers = SwerveMath.powersToSpeeds(xPower, yPower, rotationPower, constants);
+	protected void driveByState(ChassisPowers powers, SwerveState swerveState) {
+		ChassisSpeeds speedsFromPowers = SwerveMath.powersToSpeeds(powers, constants);
 		driveByState(speedsFromPowers, swerveState);
 	}
 
@@ -277,6 +316,11 @@ public class Swerve extends GBSubsystem {
 		boolean isStopping = Math.abs(rotationVelocityRadiansPerSecond) < velocityDeadbandAnglesPerSecond.getRadians();
 
 		return isAtHeading && isStopping;
+	}
+
+	public boolean isAtTranslation(Translation2d currentTranslation, Translation2d targetTranslation) {
+		return MathUtil.isNear(targetTranslation.getX(), currentTranslation.getX(), 0.1)
+			&& MathUtil.isNear(targetTranslation.getY(), currentTranslation.getY(), 0.1);
 	}
 
 }

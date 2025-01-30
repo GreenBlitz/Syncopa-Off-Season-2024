@@ -11,7 +11,7 @@ import frc.robot.hardware.digitalinput.channeled.ChanneledDigitalInput;
 import frc.robot.hardware.phoenix6.motors.TalonFXMotor;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.lifter.LifterStuff;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 
 import static edu.wpi.first.math.util.Units.inchesToMeters;
 
@@ -42,7 +42,7 @@ public class LifterRealConstants {
 			lifter,
 			DRUM_RADIUS,
 			generateLimitSwitch(),
-			Phoenix6SignalBuilder.generatePhoenix6Signal(
+			Phoenix6SignalBuilder.build(
 				lifter.getDevice().getPosition(),
 				RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
 				AngleUnit.ROTATIONS

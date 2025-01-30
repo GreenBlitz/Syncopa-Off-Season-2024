@@ -12,10 +12,11 @@ public class FunnelStateHandler {
 	}
 
 	public Command setState(FunnelState funnelState) {
-		if (funnelState == FunnelState.MANUAL) {
-			return new InstantCommand();
-		}
-		return funnel.getCommandsBuilder().setPower(funnelState.getPower());
+		return new InstantCommand();
+//		if (funnelState == FunnelState.MANUAL) {
+//			return new InstantCommand();
+//		}
+//		return funnel.getCommandsBuilder().setPower(funnelState.getPower());
 	}
 
 }

@@ -1,13 +1,13 @@
 package frc.robot.subsystems.swerve.factories.modules.constants;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import frc.robot.subsystems.swerve.factories.swerveconstants.RealSwerveConstants;
+import frc.robot.subsystems.swerve.factories.constants.RealSwerveConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
 import frc.robot.subsystems.swerve.module.records.ModuleSpecificConstants;
 
-public class RealModuleConstants {
+class RealModuleConstants {
 
-	private static final double WHEEL_DIAMETER_METERS = 0.048359 * 2;
+	private static final double WHEEL_DIAMETER_METERS = 0.047440178959133654 * 2;
 	private static final double COUPLING_RATIO = 0.59;
 
 	private static final double MODULE_X_DISTANCE_FROM_CENTER = 0.27833;
@@ -34,7 +34,7 @@ public class RealModuleConstants {
 		BACK_LEFT_TRANSLATION2D,
 		BACK_RIGHT_TRANSLATION2D,};
 
-	protected static ModuleSpecificConstants getModuleSpecificConstants(String logPath, ModuleUtils.ModulePosition modulePosition) {
+	static ModuleSpecificConstants getModuleSpecificConstants(String logPath, ModuleUtils.ModulePosition modulePosition) {
 		return new ModuleSpecificConstants(
 			modulePosition,
 			logPath,

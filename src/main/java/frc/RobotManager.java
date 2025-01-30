@@ -6,7 +6,6 @@ package frc;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Robot;
-import frc.utils.auto.PathPlannerUtils;
 import frc.utils.alerts.AlertManager;
 import frc.utils.DriverStationUtils;
 import frc.utils.time.TimeUtils;
@@ -28,7 +27,7 @@ public class RobotManager extends LoggedRobot {
 
 	public RobotManager() {
 		LoggerFactory.initializeLogger();
-		PathPlannerUtils.startPathfinder();
+//		PathPlannerUtils.startPathfinder();
 
 		this.roborioCycles = 0;
 		this.robot = new Robot();
@@ -69,8 +68,14 @@ public class RobotManager extends LoggedRobot {
 	@Override
 	public void robotPeriodic() {
 		updateTimeRelatedData(); // Better to be first
+		JoysticksBindings.setDriversInputsToSwerve(robot.getSwerve());
 		robot.periodic();
 		AlertManager.reportAlerts();
+		Logger.recordOutput("Suppliers/ReefSide", CodeCode.reefSide);
+		Logger.recordOutput("Suppliers/BranchIsLeft", CodeCode.leftBrnach);
+		Logger.recordOutput("Suppliers/Feeder", CodeCode.coralStationPosition);
+		robot.getPoseEstimators()[0].updateOdometry(robot.getSwerve().getAllOdometryObservations());
+		robot.getPoseEstimators()[0].updateVision(robot.getAprilTagVisionSources()[0].getFilteredVisionData());
 	}
 
 	private void updateTimeRelatedData() {

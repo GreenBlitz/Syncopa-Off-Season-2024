@@ -1,0 +1,37 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "amp4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "amp1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "amp2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "amp3"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "test",
+  "choreoAuto": false
+}

@@ -1,7 +1,6 @@
 package frc.robot.superstructure;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.joysticks.SmartJoystick;
 
 public class StatesMotionPlanner {
 
@@ -11,10 +10,14 @@ public class StatesMotionPlanner {
 		this.superstructure = superstructure;
 	}
 
-	public Command intakeTransfertoarmAmp(SmartJoystick joystick) {
-		return superstructure.setState(RobotState.INTAKE, joystick)
-			.andThen(superstructure.setState(RobotState.TRANSFER_SHOOTER_TO_ARM, joystick))
-			.andThen(superstructure.setState(RobotState.AMP, joystick));
+	public Command intakeTransfertoarmAmp() {
+		return superstructure.setState(RobotState.INTAKE)
+			.andThen(superstructure.setState(RobotState.TRANSFER_SHOOTER_TO_ARM))
+			.andThen(superstructure.setState(RobotState.AMP));
+	}
+
+	public Command feederIntakeToArm() {
+		return superstructure.setState(RobotState.FEED).andThen(superstructure.setState(RobotState.TRANSFER_SHOOTER_TO_ARM));
 	}
 
 }

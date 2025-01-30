@@ -5,12 +5,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
-import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.autonomous.AutonomousConstants;
 import frc.robot.subsystems.swerve.module.ModuleUtils;
@@ -23,7 +18,6 @@ import frc.utils.calibration.sysid.SysIdCalibrator;
 import frc.utils.utilcommands.InitExecuteCommand;
 
 import java.util.Set;
-import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 public class SwerveCommandsBuilder {
@@ -136,29 +130,33 @@ public class SwerveCommandsBuilder {
 	}
 
 
-	public Command drive(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rotationSupplier) {
-		return driveByState(xSupplier, ySupplier, rotationSupplier, SwerveState.DEFAULT_DRIVE);
+	public Command drive(Supplier<ChassisPowers> powersSupplier) {
+		return driveByState(powersSupplier, SwerveState.DEFAULT_DRIVE);
 	}
 
-	public Command driveByState(
-		DoubleSupplier xSupplier,
-		DoubleSupplier ySupplier,
-		DoubleSupplier rotationSupplier,
-		Supplier<SwerveState> state
-	) {
+	public Command driveByState(Supplier<ChassisPowers> powersSupplier, Supplier<SwerveState> state) {
 		return swerve.asSubsystemCommand(
-			new DeferredCommand(() -> driveByState(xSupplier, ySupplier, rotationSupplier, state.get()), Set.of(swerve)),
+			new DeferredCommand(() -> driveByState(powersSupplier, state.get()), Set.of(swerve)),
 			"Drive with supplier state"
 		);
 	}
 
-	public Command driveByState(DoubleSupplier xSupplier, DoubleSupplier ySupplier, DoubleSupplier rotationSupplier, SwerveState state) {
+	public Command driveByState(Supplier<ChassisPowers> powersSupplier, SwerveState state) {
 		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(
-				swerve::resetPIDControllers,
-				() -> swerve.driveByState(xSupplier.getAsDouble(), ySupplier.getAsDouble(), rotationSupplier.getAsDouble(), state)
-			),
+			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByState(powersSupplier.get(), state)),
 			"Drive with state"
+		);
+	}
+
+	public Command driveByDriversInputs(Supplier<SwerveState> state) {
+		return swerve
+			.asSubsystemCommand(new DeferredCommand(() -> driveByDriversInputs(state.get()), Set.of(swerve)), "Drive with supplier state");
+	}
+
+	public Command driveByDriversInputs(SwerveState state) {
+		return swerve.asSubsystemCommand(
+			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.driveByDriversTargetsPowers(state)),
+			"Drive by drivers inputs with state"
 		);
 	}
 
@@ -189,10 +187,21 @@ public class SwerveCommandsBuilder {
 	}
 
 	private Command pidToPose(Supplier<Pose2d> currentPose, Pose2d targetPose) {
-		return swerve.asSubsystemCommand(
-			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
-			"PID to pose: " + targetPose
+		// from core-swerve:
+//		return swerve.asSubsystemCommand(
+//			new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose)),
+//			"PID to pose: " + targetPose
+//		);
+		// From aim-aa:
+		return new FunctionalCommand(
+			swerve::resetPIDControllers,
+			() -> swerve.moveToPoseByPID(currentPose.get(), targetPose),
+			(interrupted) -> {},
+			() -> swerve.isAtTranslation(currentPose.get().getTranslation(), targetPose.getTranslation())
 		);
+
+//		return new InitExecuteCommand(swerve::resetPIDControllers, () -> swerve.moveToPoseByPID(currentPose.get(), targetPose), swerve)
+//			.withName("PID to pose: " + targetPose);
 	}
 
 }

@@ -12,10 +12,11 @@ public class ElbowStateHandler {
 	}
 
 	public Command setState(ElbowState elbowState) {
-		if (elbowState == ElbowState.MANUAL) {
-			return new InstantCommand();
-		}
-		return elbow.getCommandsBuilder().moveToAngle(elbowState.getTargetPosition());
+		return new InstantCommand();
+//		if (elbowState == ElbowState.MANUAL) {
+//			return new InstantCommand();
+//		}
+//		return elbow.getCommandsBuilder().moveToAngle(elbowState.getTargetPosition());
 	}
 
 }

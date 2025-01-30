@@ -18,7 +18,7 @@ import frc.robot.hardware.phoenix6.signal.Phoenix6LatencySignal;
 import frc.robot.hardware.phoenix6.signal.Phoenix6SignalBuilder;
 import frc.robot.subsystems.pivot.PivotConstants;
 import frc.robot.subsystems.pivot.PivotStuff;
-import frc.utils.AngleUnit;
+import frc.utils.math.AngleUnit;
 
 import static edu.wpi.first.units.Units.Second;
 
@@ -64,17 +64,13 @@ public class RealPivotConstants {
 		pivot.applyConfiguration(generateMotorConfig());
 
 		Phoenix6AngleSignal velocitySignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(pivot.getDevice().getVelocity(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
-		Phoenix6LatencySignal positionSignal = Phoenix6SignalBuilder.generatePhoenix6Signal(
-			pivot.getDevice().getPosition(),
-			velocitySignal,
-			RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ,
-			AngleUnit.ROTATIONS
-		);
+			.build(pivot.getDevice().getVelocity(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
+		Phoenix6LatencySignal positionSignal = Phoenix6SignalBuilder
+			.build(pivot.getDevice().getPosition(), velocitySignal, RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ, AngleUnit.ROTATIONS);
 		Phoenix6DoubleSignal currentSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(pivot.getDevice().getStatorCurrent(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.build(pivot.getDevice().getStatorCurrent(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 		Phoenix6DoubleSignal voltageSignal = Phoenix6SignalBuilder
-			.generatePhoenix6Signal(pivot.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
+			.build(pivot.getDevice().getMotorVoltage(), RobotConstants.DEFAULT_SIGNALS_FREQUENCY_HERTZ);
 
 		return new PivotStuff(logPath, pivot, positionRequest, positionSignal, velocitySignal, currentSignal, voltageSignal);
 	}

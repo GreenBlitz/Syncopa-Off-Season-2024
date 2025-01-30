@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public class IntakeStateHandler {
 
@@ -11,7 +12,8 @@ public class IntakeStateHandler {
 	}
 
 	public Command setState(IntakeState intakeState) {
-		return intake.getCommandsBuilder().setPower(intakeState.getPower());
+		return new InstantCommand();
+//		return intake.getCommandsBuilder().setPower(intakeState.getPower());
 	}
 
 }

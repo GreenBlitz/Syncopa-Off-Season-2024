@@ -7,21 +7,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.CodeCode;
 import frc.constants.field.Field;
 import frc.robot.poseestimator.IPoseEstimator;
-import frc.robot.subsystems.funnel.Funnel;
-import frc.robot.subsystems.funnel.FunnelConstants;
-import frc.robot.subsystems.funnel.factory.FunnelFactory;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants;
-import frc.robot.subsystems.intake.factory.IntakeFactory;
-import frc.robot.subsystems.elbow.Elbow;
-import frc.robot.subsystems.elbow.ElbowConstants;
-import frc.robot.subsystems.elbow.factory.ElbowFactory;
-import frc.robot.subsystems.pivot.Pivot;
-import frc.robot.subsystems.pivot.PivotConstants;
-import frc.robot.subsystems.pivot.factory.PivotFactory;
-import frc.robot.subsystems.roller.Roller;
-import frc.robot.subsystems.roller.RollerConstants;
-import frc.robot.subsystems.roller.factory.RollerFactory;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.RobotManager;
 import frc.robot.hardware.interfaces.IGyro;
@@ -33,12 +18,8 @@ import frc.robot.subsystems.swerve.Swerve;
 import frc.robot.subsystems.swerve.factories.constants.SwerveConstantsFactory;
 import frc.robot.subsystems.swerve.factories.gyro.GyroFactory;
 import frc.robot.subsystems.swerve.factories.modules.ModulesFactory;
-import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.subsystems.wrist.WristConstants;
-import frc.robot.subsystems.wrist.factory.WristFactory;
 import frc.robot.superstructure.StatesMotionPlanner;
 import frc.utils.battery.BatteryUtils;
-import frc.utils.brakestate.BrakeStateManager;
 import frc.utils.auto.AutonomousChooser;
 import frc.robot.vision.multivisionsources.MultiAprilTagVisionSources;
 import frc.robot.vision.sources.limelights.LimelightFactory;
@@ -56,14 +37,14 @@ public class Robot {
 
 	private final Swerve swerve;
 //	private final Solenoid solenoid;
-	private final Funnel funnel;
-	private final Intake intake;
-	private final Elbow elbow;
+//	private final Funnel funnel;
+//	private final Intake intake;
+//	private final Elbow elbow;
 //	private final Flywheel flywheel;
-	private final Pivot pivot;
+//	private final Pivot pivot;
 //	private final Lifter lifter;
-	private final Roller roller;
-	private final Wrist wrist;
+//	private final Roller roller;
+//	private final Wrist wrist;
 
 	private final Superstructure superstructureFunny;
 	private final StatesMotionPlanner statesMotionPlanner;
@@ -84,19 +65,19 @@ public class Robot {
 		);
 
 //		this.solenoid = new Solenoid(SolenoidFactory.create(SolenoidConstants.LOG_PATH));
-		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
+//		this.intake = new Intake(IntakeFactory.create(IntakeConstants.LOG_PATH));
 //		this.flywheel = new Flywheel(FlywheelFactory.create(FlyWheelConstants.LOG_PATH));
-		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
-		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
-		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
-		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
-		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
+//		this.pivot = new Pivot(PivotFactory.create(PivotConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> pivot.setBrake(true), () -> pivot.setBrake(false));
+//		this.elbow = new Elbow(ElbowFactory.create(ElbowConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> elbow.setBrake(true), () -> elbow.setBrake(false));
+//		this.funnel = new Funnel(FunnelFactory.create(FunnelConstants.LOG_PATH));
 //		this.lifter = new Lifter(LifterFactory.create(LifterConstants.LOG_PATH));
 //		BrakeStateManager.add(() -> lifter.setBrake(true), () -> lifter.setBrake(false));
-		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
-		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
-		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
-		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
+//		this.roller = new Roller(RollerFactory.create(RollerConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> roller.setBrake(true), () -> roller.setBrake(false));
+//		this.wrist = new Wrist(WristFactory.create(WristConstants.LOG_PATH));
+//		BrakeStateManager.add(() -> wrist.setBrake(true), () -> wrist.setBrake(false));
 
 
 		this.poseEstimator = new WPILibPoseEstimatorWrapper(
@@ -171,37 +152,37 @@ public class Robot {
 //		return solenoid;
 //	}
 
-	public Funnel getFunnel() {
-		return funnel;
-	}
+//	public Funnel getFunnel() {
+//		return funnel;
+//	}
 
-	public Intake getIntake() {
-		return intake;
-	}
+//	public Intake getIntake() {
+//		return intake;
+//	}
 
-	public Elbow getElbow() {
-		return elbow;
-	}
+//	public Elbow getElbow() {
+//		return elbow;
+//	}
 
 //	public Flywheel getFlywheel() {
 //		return flywheel;
 //	}
 
-	public Pivot getPivot() {
-		return pivot;
-	}
+//	public Pivot getPivot() {
+//		return pivot;
+//	}
 
 //	public Lifter getLifter() {
 //		return lifter;
 //	}
 
-	public Roller getRoller() {
-		return roller;
-	}
+//	public Roller getRoller() {
+//		return roller;
+//	}
 
-	public Wrist getWrist() {
-		return wrist;
-	}
+//	public Wrist getWrist() {
+//		return wrist;
+//	}
 
 	public Superstructure getSuperstructureFunny() {
 		return superstructureFunny;

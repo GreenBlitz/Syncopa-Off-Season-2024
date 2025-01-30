@@ -13,7 +13,6 @@ import frc.robot.subsystems.funnel.FunnelState;
 import frc.robot.subsystems.funnel.FunnelStateHandler;
 import frc.robot.subsystems.intake.IntakeState;
 import frc.robot.subsystems.intake.IntakeStateHandler;
-import frc.robot.subsystems.pivot.PivotInterpolationMap;
 import frc.robot.subsystems.pivot.PivotState;
 import frc.robot.subsystems.pivot.PivotStateHandler;
 import frc.robot.subsystems.roller.RollerState;
@@ -25,7 +24,6 @@ import frc.robot.subsystems.wrist.WristState;
 import frc.robot.subsystems.wrist.WristStateHandler;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Optional;
 import java.util.Set;
 
 public class Superstructure extends GBSubsystem {
@@ -58,13 +56,13 @@ public class Superstructure extends GBSubsystem {
 		super(logPath);
 		this.robot = robot;
 		this.swerve = robot.getSwerve();
-		this.elbowStateHandler = new ElbowStateHandler(robot.getElbow());
+		this.elbowStateHandler = new ElbowStateHandler(null);
 		this.flywheelStateHandler = new FlywheelStateHandler(null);
-		this.funnelStateHandler = new FunnelStateHandler(robot.getFunnel());
-		this.intakeStateHandler = new IntakeStateHandler(robot.getIntake());
-		this.pivotStateHandler = new PivotStateHandler(robot.getPivot(), Optional.of(() -> robot.getPoseEstimator().getEstimatedPose()));
-		this.rollerStateHandler = new RollerStateHandler(robot.getRoller());
-		this.wristStateHandler = new WristStateHandler(robot.getWrist());
+		this.funnelStateHandler = new FunnelStateHandler(null);
+		this.intakeStateHandler = new IntakeStateHandler(null);
+		this.pivotStateHandler = new PivotStateHandler(null, null);
+		this.rollerStateHandler = new RollerStateHandler(null);
+		this.wristStateHandler = new WristStateHandler(null);
 
 		this.currentState = RobotState.IDLE;
 		this.endBehaviorManager = new EndBehaviorManager(this);
@@ -80,16 +78,12 @@ public class Superstructure extends GBSubsystem {
 		Logger.recordOutput(getLogPath() + "CurrentState", currentState);
 	}
 
-	private boolean isObjectInRoller() {
-		return robot.getRoller().isObjectIn();
-	}
-
 	public boolean isObjectInIntake() {
-		return robot.getIntake().isObjectIn();
+		return true; // robot.getIntake().isObjectIn();
 	}
 
 	public boolean isObjectInFunnel() {
-		return robot.getFunnel().isObjectIn();
+		return true; // robot.getFunnel().isObjectIn();
 	}
 
 	public boolean isObjectIn() {
@@ -97,14 +91,14 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private boolean isReadyToTransfer() {
-		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.TRANSFER.getTargetPosition(), Tolerances.PIVOT_POSITION);
-		boolean isElbowReady = robot.getElbow().isAtAngle(ElbowState.TRANSFER.getTargetPosition(), Tolerances.ELBOW_POSITION_TRANSFER);
-
-		return isElbowReady && isPivotReady;
+//		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.TRANSFER.getTargetPosition(), Tolerances.PIVOT_POSITION);
+//		boolean isElbowReady = robot.getElbow().isAtAngle(ElbowState.TRANSFER.getTargetPosition(), Tolerances.ELBOW_POSITION_TRANSFER);
+//
+		return true; // isElbowReady && isPivotReady;
 	}
 
 	private boolean isReadyToShootClose() {
-		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PRE_SPEAKER.getTargetPosition(), Tolerances.PIVOT_POSITION);
+//		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PRE_SPEAKER.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
 //		boolean isFlywheelReady = robot.getFlywheel()
 //			.isAtVelocities(
@@ -117,7 +111,7 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private boolean isReadyToPass() {
-		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
+//		boolean isPivotReady = robot.getPivot().isAtPosition(PivotState.PASSING.getTargetPosition(), Tolerances.PIVOT_POSITION);
 
 //		boolean isFlywheelReady = robot.getFlywheel()
 //			.isAtVelocities(
@@ -133,9 +127,9 @@ public class Superstructure extends GBSubsystem {
 		Translation2d robotTranslation2d = null;// robot.getPoseEstimator().getEstimatedPose().getTranslation();
 
 		double metersFromSpeaker = 0;// Field.getSpeaker().toTranslation2d().getDistance(robotTranslation2d);
-		boolean isPivotReady = robot.getPivot()
-			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
-
+//		boolean isPivotReady = robot.getPivot()
+//			.isAtPosition(Rotation2d.fromRadians(PivotInterpolationMap.METERS_TO_RADIANS.get(metersFromSpeaker)), Tolerances.PIVOT_POSITION);
+//
 //		boolean isFlywheelReady = robot.getFlywheel()
 //			.isAtVelocities(
 //				FlywheelState.PRE_SPEAKER.getRightVelocity(),
@@ -214,14 +208,14 @@ public class Superstructure extends GBSubsystem {
 	}
 
 	private Command feed() {
-		return new ParallelDeadlineGroup(
+		return new ParallelCommandGroup(
 			new SequentialCommandGroup(
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),
 					flywheelStateHandler.setState(FlywheelState.DEFAULT)
-				).until(() -> robot.getPivot().isAtPosition(PivotState.FEEDER.getTargetPosition(), Tolerances.PIVOT_POSITION)),
+				), // .until(() -> robot.getPivot().isAtPosition(PivotState.FEEDER.getTargetPosition(), Tolerances.PIVOT_POSITION)),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.OUTTAKE),
@@ -275,7 +269,7 @@ public class Superstructure extends GBSubsystem {
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM),
 					wristStateHandler.setState(WristState.PRE_TRAP)
-				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
+				),//.until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),
@@ -340,10 +334,7 @@ public class Superstructure extends GBSubsystem {
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),
 					flywheelStateHandler.setState(FlywheelState.FEEDER)
-				).until(() -> robot.getPivot().isAtPosition(
-					PivotState.FEEDER.getTargetPosition(),
-					Tolerances.PIVOT_POSITION
-				)),
+				),//.until(() -> robot.getPivot().isAtPosition(PivotState.FEEDER.getTargetPosition(), Tolerances.PIVOT_POSITION)),
 				new ParallelCommandGroup(
 					pivotStateHandler.setState(PivotState.FEEDER),
 					funnelStateHandler.setState(FunnelState.OUTTAKE),
@@ -389,8 +380,8 @@ public class Superstructure extends GBSubsystem {
 					rollerStateHandler.setState(RollerState.STOP),
 					funnelStateHandler.setState(FunnelState.SLOW_INTAKE),
 					wristStateHandler.setState(WristState.DEFAULT)
-				).withTimeout(Timeouts.WRIST_TO_POSITION_SECONDS)
-				 .until(() -> robot.getWrist().isAtPosition(WristState.DEFAULT.getPosition(), Tolerances.WRIST_POSITION))
+				)//.withTimeout(Timeouts.WRIST_TO_POSITION_SECONDS)
+				 //.until(() -> robot.getWrist().isAtPosition(WristState.DEFAULT.getPosition(), Tolerances.WRIST_POSITION))
 			),
 			flywheelStateHandler.setState(FlywheelState.DEFAULT),
 			pivotStateHandler.setState(PivotState.ARM_INTAKE),
@@ -443,7 +434,7 @@ public class Superstructure extends GBSubsystem {
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM)
-				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
+				),//.until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP)
@@ -468,7 +459,7 @@ public class Superstructure extends GBSubsystem {
 					elbowStateHandler.setState(ElbowState.PRE_AMP),
 					funnelStateHandler.setState(FunnelState.RELEASE_FOR_ARM),
 					intakeStateHandler.setState(IntakeState.RELEASE_FOR_ARM)
-				).until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
+				),//.until(() -> robot.getElbow().isAtAngle(ElbowState.PRE_AMP.getTargetPosition(), Tolerances.ELBOW_POSITION)),
 				new ParallelCommandGroup(
 					funnelStateHandler.setState(FunnelState.STOP),
 					intakeStateHandler.setState(IntakeState.STOP),

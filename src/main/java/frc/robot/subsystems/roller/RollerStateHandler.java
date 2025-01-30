@@ -13,13 +13,14 @@ public class RollerStateHandler {
 	}
 
 	public Command setState(RollerState rollerState) {
-		if (rollerState == RollerState.AFTER_INTAKE) {
-			return roller.getCommandsBuilder().rollRotations(Tolerances.ROLLER_INTAKE_ROTATIONS, rollerState.getPower());
-		}
-		if (rollerState == RollerState.MANUAL) {
-			return new InstantCommand();
-		}
-		return roller.getCommandsBuilder().setPower(rollerState.getPower());
+		return new InstantCommand();
+//		if (rollerState == RollerState.AFTER_INTAKE) {
+//			return roller.getCommandsBuilder().rollRotations(Tolerances.ROLLER_INTAKE_ROTATIONS, rollerState.getPower());
+//		}
+//		if (rollerState == RollerState.MANUAL) {
+//			return new InstantCommand();
+//		}
+//		return roller.getCommandsBuilder().setPower(rollerState.getPower());
 	}
 
 }
